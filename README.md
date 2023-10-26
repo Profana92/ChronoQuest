@@ -1,4 +1,5 @@
 # ChronoQuest
+
 ChronoQuest: Endless Realms - an infinite browser-based RPG game where players embark on an everlasting adventure across diverse dimensions. As a dimensional traveler, you explore parallel universes, face formidable challenges, and gather otherworldly artifacts. The ultimate goal is to seek knowledge and power to unlock the mysteries of the multiverse.
 
 Game Features:
@@ -11,6 +12,7 @@ Game Features:
 
 Tech Stack:
 Frontend:
+
 - Next.js: Leverage Next.js for building the frontend of the game with server-side rendering, routing, and a seamless user experience.
 - React: Craft the game's user interface using React, creating interactive elements and managing state.
 - TypeScript: Employ TypeScript to enhance code quality and maintainability with static typing and development tools.
