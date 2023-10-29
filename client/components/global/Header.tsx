@@ -5,7 +5,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import SignOut from "../auth/SignOut";
 const Header = async () => {
   const session = await getServerSession(authOptions);
-  console.log({ session });
 
   return (
     <header className="flex gap-7">
