@@ -1,8 +1,13 @@
-const ProtectedServerPage = () => {
+"use server";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth/next";
+const ProtectedServerPage = async () => {
+  const session = await getServerSession(authOptions);
+
   return (
     <div>
       <h1>this is a Server Side Protected Page</h1>
-      <p>You are logged in as USER</p>
+      <p>You are logged in as {session?.user?.name}</p>
     </div>
   );
 };

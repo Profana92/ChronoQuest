@@ -1,5 +1,6 @@
-const ProfileClient = () => {
-  return <div>ProfileClient</div>;
+"use client";
+const ProfileClientPage = () => {
+  return <div>ProfileClientPage</div>;
 };
 
-export default ProfileClient;
+export default ProfileClientPage;

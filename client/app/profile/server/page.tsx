@@ -1,5 +1,6 @@
-const ProfileServer = () => {
-  return <div>ProfileServer</div>;
+"use server";
+const ProfileServerPage = () => {
+  return <div>ProfileServerPage</div>;
 };
 
-export default ProfileServer;
+export default ProfileServerPage;
