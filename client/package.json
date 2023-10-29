@@ -7,13 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --watch",
+    "test": "jest --watch --coverage",
     "test:ci": "jest --ci"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.3",
     "next": "14.0.0",
+    "next-auth": "^4.24.4",
+    "nodemailer": "^6.9.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "the-new-css-reset": "^1.11.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",

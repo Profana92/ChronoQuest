@@ -1,8 +1,5 @@
-describe("Testy Jednostkowe", () => {
-  test("the best flavor is not coconut", () => {
+describe("Testing Jest Configuration", () => {
+  it("should be eq 2", () => {
     expect(2).toBe(2);
-  });
-  test("expect 2 to not be eq 5onut", () => {
-    expect(2).not.toBe(5);
   });
 });
