@@ -1,13 +1,13 @@
 "use client";
 
 import ProfileComponent from "@/components/profile";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 const ProfileClientPage = () => {
-  const { data: session, update } = useSession();
+  // const { data: session, update } = useSession();
   return (
     <div>
       <h1>Profile Client Side</h1>
-      <ProfileComponent user={session?.user} update={update} />
+      <ProfileComponent  />
     </div>
   );
 };

@@ -3,12 +3,13 @@
 import { ProfileUser } from "@/types/ProfileUser";
 import ProfileCard from "./ProfileCard";
 import ProfileUpdate from "./ProfileUpdate";
-const ProfileComponent = ({ user, update }: ProfileUser) => {
-  console.log(update);
+import { useSession } from "next-auth/react";
+const ProfileComponent = ({ user }: ProfileUser) => {
+  const { data: session, update } = useSession();
   return (
     <div>
-      <ProfileCard user={user} />
-      <ProfileUpdate />
+      <ProfileCard user={session?.user || user} />
+      <ProfileUpdate update={update} />
     </div>
   );
 };

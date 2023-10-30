@@ -6,10 +6,14 @@ type formData = {
   image: string;
   get: (arg: string) => string;
 };
-const ProfileUpdate = () => {
+const ProfileUpdate = ({ update }) => {
   async function handleUpdateProfile(formData: formData) {
     const name = formData.get("name");
     const image = formData.get("image");
+
+    if (update) {
+      update({ name, image });
+    }
     const res = await updateUser({ name, image });
     if (res?.msg) alert(res?.msg);
   }
@@ -21,7 +25,6 @@ const ProfileUpdate = () => {
         <input type="text" name="name" placeholder="Name" required />
         <input type="text" name="image" placeholder="Image" required />
         <Button value="Update Profile" />
-        {/* <button>Update Profile</button> */}
       </Form>
     </div>
   );
