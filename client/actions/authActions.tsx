@@ -52,7 +52,7 @@ export async function verifyWithCredentials(token) {
     await newUser.save();
 
     return {
-      msg: "Verified sucessfully. Your journey starts here.",
+      msg: "Verified sucessfully. Your journey has just begun.",
     };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);

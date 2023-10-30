@@ -2,12 +2,13 @@
 import Form from "../global/Form";
 import Button from "../global/Button";
 import { signUpWithCredentials } from "@/actions/authActions";
+import Link from "next/link";
 const SignUp = () => {
   async function handleSignUpCredentials(formData) {
     const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
- 
+
     const res = await signUpWithCredentials({ name, email, password });
     if (res?.msg) alert(res?.msg);
   }
@@ -20,6 +21,9 @@ const SignUp = () => {
         <input type="password" name="password" placeholder="Password" required />
         <Button value="Register" />
       </Form>
+      <div>
+        <Link href="/signin">Sign In</Link>
+      </div>
     </div>
   );
 };
