@@ -1,6 +1,15 @@
 "use client";
+
+import ProfileComponent from "@/components/profile";
+import { useSession } from "next-auth/react";
 const ProfileClientPage = () => {
-  return <div>ProfileClientPage</div>;
+  const { data: session, update } = useSession();
+  return (
+    <div>
+      <h1>Profile Client Side</h1>
+      <ProfileComponent user={session?.user} update={update} />
+    </div>
+  );
 };
 
 export default ProfileClientPage;

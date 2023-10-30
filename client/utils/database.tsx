@@ -8,7 +8,9 @@ const connectDB = async () => {
       await mongoose.connect(process.env.MONGODB_URI);
       console.log("MongoDB connected");
       return true;
-    } else throw new Error("MongoDB connection error. No MongoDB URI found.");
+    } else {
+      throw new Error("MongoDB connection error. No MongoDB URI found.");
+    }
   } catch (err) {
     console.log(err);
   }
