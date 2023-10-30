@@ -10,10 +10,9 @@ import sendEmail from "@/utils/sendEmail";
 const BASE_URL = process.env.NEXTAUTH_URL;
 
 export async function updateUser({ name, image }) {
-  const session = await getServerSession(authOptions);
-  if (!session) throw new Error("Unauthorization!");
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("Unauthorization!");
     const user = await User.findByIdAndUpdate(session?.user?._id, { name, image }, { new: true }).select("-password");
     if (!user) throw new Error("Email does not exist!");
     return { msg: "Updated Profile Successfully" };
@@ -53,6 +52,25 @@ export async function verifyWithCredentials(token) {
 
     return {
       msg: "Verified sucessfully. Your journey has just begun.",
+    };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+export async function changePasswordWithCredentials({ old_pass, new_pass }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) throw new Error("You are not authorized to perform that action");
+    if (session?.user?.provider !== "credentials")
+      throw new Error(`This account is signed in with ${session?.user?.provider}. You can't use this function!`);
+    const user = await User.findById(session?.user?._id);
+    if (!user) throw new Error("User does not exist!");
+    const compare = await bcrypt.compare(old_pass, user.password);
+    if (!compare) throw new Error("Old password does not match!");
+    const newPass = await bcrypt.hash(new_pass, 12);
+    await User.findByIdAndUpdate(user._id, { password: newPass });
+    return {
+      msg: "Password changed sucessfully",
     };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);

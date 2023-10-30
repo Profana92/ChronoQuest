@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connectDB from "@/utils/database";
 import User from "@/models/userModel";
-
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcrypt";
 connectDB();
 export const authOptions = {
   providers: [
@@ -10,8 +11,20 @@ export const authOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "email@gmail.com", required: true },
+        password: { label: "Password", type: "password", required: true },
+      },
+      async authorize(credentials, req) {
+        const { email, password } = credentials;
+        const user = await signInWithCredentials({ email, password });
+        return user;
+      },
+    }),
   ],
-  pages: { signIn: "/signin" },
+  pages: { signIn: "/signin", error: "/errors" },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       if (account.type === "oauth") {
@@ -57,6 +70,16 @@ async function signInWithOAuth({ account, profile }) {
 async function getUserByEmail({ email }) {
   const user = await User.findOne({ email }).select("-password");
   if (!user) throw new Error("Email does not exist");
+
+  return { ...user._doc, _id: user._id.toString() };
+}
+
+async function signInWithCredentials({ email, password }) {
+  const user = await User.findOne({ email });
+
+  if (!user) throw new Error("Email does not exist!");
+  const compare = await bcrypt.compare(password, user.password);
+  if (!compare) throw new Error("Password does not Match");
 
   return { ...user._doc, _id: user._id.toString() };
 }

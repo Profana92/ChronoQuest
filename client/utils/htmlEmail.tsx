@@ -69,7 +69,7 @@ export function html({ url, text }) {
                       <tr>
                         <td align="center" style="font-size:0px;padding:0 10px;word-break:break-word;">
                           <div style="font-family:Open Sans, Arial, sans-serif;font-size:10px;line-height:14px;text-align:center;color:#111111;">
-                            <p style="Margin:0; padding-bottom:10px; font-size:10px; line-height:15px; Margin-top:10px; Margin-bottom:10px; color:#111111; font-family: 'Open Sans', 'Raleway', Arial, Helvetica, sans-serif;">We only send emails to individuals who have registered at our site: <a href="http://www.chronoquct.de" name="footer_ugghomepage" style="color:#111111; text-decoration:underline;">chronoquct.de</a>
+                            <p style="Margin:0; padding-bottom:10px; font-size:10px; line-height:15px; Margin-top:10px; Margin-bottom:10px; color:#111111; font-family: 'Open Sans', 'Raleway', Arial, Helvetica, sans-serif;">We only send emails to individuals who have registered at our site: <a href="http://www.chronoquest.de" name="footer_ugghomepage" style="color:#111111; text-decoration:underline;">chronoquest.de</a>
                             </p>
                           </div>
                         </td>
