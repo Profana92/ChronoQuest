@@ -20,7 +20,6 @@ export const authOptions = {
       return true;
     },
     async jwt({ token, trigger, session }) {
-  
       if (trigger === "update") {
         token.user.name = session.name;
         token.user.image = session.image;
@@ -45,7 +44,12 @@ export { handler as GET, handler as POST };
 async function signInWithOAuth({ account, profile }) {
   const user = await User.findOne({ email: profile.email });
   if (user) return true;
-  const newUser = new User({ name: profile.name, email: profile.email, image: profile.picture, provider: account.provider });
+  const newUser = new User({
+    name: profile.name,
+    email: profile.email,
+    image: profile.picture,
+    provider: account.provider,
+  });
   await newUser.save();
   return true;
 }
