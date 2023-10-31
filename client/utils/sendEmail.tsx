@@ -12,7 +12,7 @@ const sendEmail = async ({ to, url, text }: { to: string; url: string; text: str
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: "ChronoQuest | Registration confirmation",
+    subject: "ChronoQuest",
     html: html({ url, text }),
   };
   const result = await transporter.sendMail(mailOptions);

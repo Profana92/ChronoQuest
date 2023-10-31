@@ -76,3 +76,27 @@ export async function changePasswordWithCredentials({ old_pass, new_pass }) {
     redirect(`/errors?error=${error?.message}`);
   }
 }
+
+export async function forgotPasswordWithCredentials({ email }) {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("User does not exist!");
+    if (user?.provider !== "credentials")
+      throw new Error(`This account is signed in with ${session?.user?.provider}. You can't use this function!`);
+    const token = generateToken({ userId: user._id });
+    await sendEmail({ to: email, url: `${BASE_URL}/reset_password?token=${token}`, text: "Reset Password" });
+    return { msg: "Success! Check your email to reset your password" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+export async function resetPasswordWithCredentials({ token, password }) {
+  try {
+    const { userId } = verifyToken(token);
+    const newPass = await bcrypt.hash(password, 12);
+    await User.findByIdAndUpdate(userId, { password: newPass });
+    return { msg: "Success! Check your email to reset your password" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
