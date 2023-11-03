@@ -21,7 +21,7 @@ export default function RootLayout({
       <body className="min-h-full">
         <Provider>
           <Header />
-          <main>{children}</main>
+          <main className="">{children}</main>
         </Provider>
       </body>
     </html>
