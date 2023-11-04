@@ -1,9 +1,12 @@
 import { ReactNode } from "react";
 
-type Props = { children: ReactNode; classes?: string };
-const FullWidthContainer = ({ children, classes }: Props) => {
+type Props = { children: ReactNode; additionalClasses?: string };
+const FullWidthContainer = ({ children, additionalClasses }: Props) => {
   return (
-    <div className={`w-full ${classes}`} data-testid="FullWidthDiv">
+    <div
+      className={`w-full ${additionalClasses ? additionalClasses : ""}`}
+      data-testid="FullWidthDiv"
+    >
       {children}
     </div>
   );

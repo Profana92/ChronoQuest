@@ -1,43 +1,41 @@
 import { getByRole, render, screen } from "@testing-library/react";
-import HalfWidthContainer from "@/components/containers/HalfWidthContainer";
+import FullWidthContainer from "@/components/containers/FullWidthContainer";
 describe("FullWidth component tests", () => {
   it("should render child H1 on screen", () => {
     render(
-      <HalfWidthContainer>
+      <FullWidthContainer>
         <h1>This is a Heading Text</h1>
-      </HalfWidthContainer>
+      </FullWidthContainer>
     );
     expect(screen.getByRole("heading")).toBeInTheDocument();
   });
 
   it("should render more than one child element.", () => {
     render(
-      <HalfWidthContainer>
+      <FullWidthContainer>
         <h1>This is a Heading Text</h1>
         <p>This is a Paragraph Text</p>
-      </HalfWidthContainer>
+      </FullWidthContainer>
     );
     expect(screen.getByRole("heading")).toBeInTheDocument();
     expect(screen.getByText(/This is a Paragraph Text/i)).toBeInTheDocument();
   });
   it("should have w-full class.", () => {
     render(
-      <HalfWidthContainer>
+      <FullWidthContainer>
         <h1>This is a Heading Text</h1>
-      </HalfWidthContainer>
+      </FullWidthContainer>
     );
 
-    expect(screen.getByTestId(/HalfWidthContainerDiv/i)).toHaveClass("w-1/2");
+    expect(screen.getByTestId(/FullWidthDiv/i)).toHaveClass("w-full");
   });
   it("should have additional class passed by props.", () => {
     render(
-      <HalfWidthContainer additionalClasses="custom class">
+      <FullWidthContainer additionalClasses="custom class">
         <h1>This is a Heading Text</h1>
-      </HalfWidthContainer>
+      </FullWidthContainer>
     );
 
-    expect(screen.getByTestId(/HalfWidthContainerDiv/i)).toHaveClass(
-      "custom class"
-    );
+    expect(screen.getByTestId(/FullWidthDiv/i)).toHaveClass("custom class");
   });
 });

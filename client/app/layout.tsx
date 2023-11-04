@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`h-full ${oswald.variable} ${lato.variable}`}>
-      <body className="min-h-full">
+      <body className="min-h-full font-lato">
         <Provider>
           <Header />
           <main className="">{children}</main>
