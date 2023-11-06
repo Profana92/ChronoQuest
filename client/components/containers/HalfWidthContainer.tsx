@@ -1,9 +1,14 @@
 import { ReactNode } from "react";
 
-type Props = { children: ReactNode; classes?: string };
-const HalfWidthContainer = ({ children, classes }: Props) => {
+type Props = { children?: ReactNode; additionalClasses?: string };
+const HalfWidthContainer = ({ children, additionalClasses }: Props) => {
   return (
-    <div className={`w-1/2 ${classes}`} data-testid="HalfWidthContainerDiv">
+    <div
+      className={`${
+        additionalClasses ? additionalClasses : ""
+      } w-1/2 inline-block`}
+      data-testid="HalfWidthContainerDiv"
+    >
       {children}
     </div>
   );

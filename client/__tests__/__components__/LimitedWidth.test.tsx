@@ -33,7 +33,7 @@ describe("FullWidth component tests", () => {
   });
   it("should have additional class passed by props.", () => {
     render(
-      <LimitedWidthContainer classes="custom class">
+      <LimitedWidthContainer additionalClasses="custom class">
         <h1>This is a Heading Text</h1>
       </LimitedWidthContainer>
     );

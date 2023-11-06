@@ -1,15 +1,15 @@
 import { ReactNode } from "react";
 
 type Props = { children: ReactNode; additionalClasses?: string };
-const FullWidthContainer = ({ children, additionalClasses }: Props) => {
+const SectionContainer = ({ children, additionalClasses }: Props) => {
   return (
-    <div
+    <section
+      data-testid="section"
       className={`${additionalClasses ? additionalClasses : ""} w-full`}
-      data-testid="FullWidthDiv"
     >
       {children}
-    </div>
+    </section>
   );
 };
 
-export default FullWidthContainer;
+export default SectionContainer;
