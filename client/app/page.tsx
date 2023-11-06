@@ -15,6 +15,7 @@ import { SiJsonwebtokens } from "react-icons/si";
 import { SiMongodb } from "react-icons/si";
 import { SiMongoose } from "react-icons/si";
 import { SiReact } from "react-icons/si";
+import { SiTestinglibrary } from "react-icons/si";
 
 export default function Home() {
   return (
@@ -44,7 +45,7 @@ export default function Home() {
       </SectionContainer>
       <SectionContainer>
         <LimitedWidthContainer>
-          <HeadingPrimary>What Awaits You:</HeadingPrimary>
+          <HeadingSecondary>What Awaits You:</HeadingSecondary>
           <ul>
             <li>
               🌐 Explore diverse historical eras, from the distant past to the
@@ -75,7 +76,9 @@ export default function Home() {
             started. We&apos;ve got your back as you traverse the fourth
             dimension!
           </ParagraphRegular>
-          <LinkPrimary to="/how-to">Learn More!</LinkPrimary>
+          <LinkPrimary to="/how-to" additionalClasses="mx-auto">
+            Learn More!
+          </LinkPrimary>
           <ParagraphRegular>
             Get ready to unravel the threads of time and create your own
             destiny. Welcome to ChronoQuest, where history is your playground,
@@ -89,29 +92,32 @@ export default function Home() {
           <HeadingSecondary>This project uses:</HeadingSecondary>
         </LimitedWidthContainer>
         <LimitedWidthContainer additionalClasses="flex gap-3 justify-center items-center">
-          <IconBox>
-            <SiNextdotjs size="2rem" />
+          <IconBox link="https://nextjs.org/">
+            <SiNextdotjs size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiReact size="2rem" />
+          <IconBox link="https://react.dev/">
+            <SiReact size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiTypescript size="2rem" />
+          <IconBox link="https://www.typescriptlang.org/">
+            <SiTypescript size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiTailwindcss size="2rem" />
+          <IconBox link="https://tailwindcss.com/">
+            <SiTailwindcss size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiJest size="2rem" />
+          <IconBox link="https://jestjs.io/">
+            <SiJest size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiJsonwebtokens size="2rem" />
+          <IconBox link="https://testing-library.com/">
+            <SiTestinglibrary size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiMongodb size="2rem" />
+          <IconBox link="https://jwt.io/">
+            <SiJsonwebtokens size="1.6rem" />
           </IconBox>
-          <IconBox>
-            <SiMongoose size="2rem" />
+          <IconBox link="https://www.mongodb.com/">
+            <SiMongodb size="1.6rem" />
+          </IconBox>
+          <IconBox link="https://mongoosejs.com/">
+            <SiMongoose size="1.6rem" />
           </IconBox>
         </LimitedWidthContainer>
       </SectionContainer>

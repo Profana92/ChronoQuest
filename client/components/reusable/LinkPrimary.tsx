@@ -6,7 +6,7 @@ type Props = {
 };
 const LinkPrimary = ({ children, to, additionalClasses }: Props) => {
   return (
-    <div>
+    <div className="text-center">
       <Link
         href={to}
         className={`font-lato ${additionalClasses ? additionalClasses : ""}`}
