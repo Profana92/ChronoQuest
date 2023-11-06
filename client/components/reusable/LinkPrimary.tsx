@@ -2,7 +2,7 @@ import Link from "next/link";
 type Props = {
   to: string;
   additionalClasses?: string;
-  children?: React.ReactNode | string;
+  children: React.ReactNode | string;
 };
 const LinkPrimary = ({ children, to, additionalClasses }: Props) => {
   return (

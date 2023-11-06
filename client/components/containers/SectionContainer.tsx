@@ -5,7 +5,7 @@ const SectionContainer = ({ children, additionalClasses }: Props) => {
   return (
     <section
       data-testid="section"
-      className={`w-full ${additionalClasses ? additionalClasses : ""}`}
+      className={`${additionalClasses ? additionalClasses : ""} w-full`}
     >
       {children}
     </section>

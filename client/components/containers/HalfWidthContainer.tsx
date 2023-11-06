@@ -4,9 +4,9 @@ type Props = { children?: ReactNode; additionalClasses?: string };
 const HalfWidthContainer = ({ children, additionalClasses }: Props) => {
   return (
     <div
-      className={`w-1/2 inline-block ${
+      className={`${
         additionalClasses ? additionalClasses : ""
-      }`}
+      } w-1/2 inline-block`}
       data-testid="HalfWidthContainerDiv"
     >
       {children}

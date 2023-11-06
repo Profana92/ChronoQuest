@@ -4,9 +4,9 @@ type Props = { children: ReactNode; additionalClasses?: string };
 const LimitedWidthContainer = ({ children, additionalClasses }: Props) => {
   return (
     <div
-      className={`max-w-[1920px] mx-auto ${
+      className={`${
         additionalClasses ? additionalClasses : ""
-      }`}
+      } max-w-[1920px] mx-auto p-5`}
       data-testid="FullWidthDiv"
     >
       {children}
