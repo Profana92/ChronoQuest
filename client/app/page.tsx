@@ -93,7 +93,7 @@ export default function Home() {
         </LimitedWidthContainer>
         <LimitedWidthContainer additionalClasses="flex gap-3 justify-center items-center">
           <IconBox link="https://nextjs.org/">
-            <SiNextdotjs size="1.6rem" />
+            <SiNextdotjs size="1.6rem" color="#fff" />
           </IconBox>
           <IconBox link="https://react.dev/">
             <SiReact size="1.6rem" />

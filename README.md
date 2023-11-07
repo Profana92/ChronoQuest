@@ -10,16 +10,23 @@ Colors:
     Neutral Dark: #161322
     Neutral WHite: #FCFAF6
     Accent Green: #2EE09A
-    Accent Pink: F4928D
+    Accent Pink: #F4928D
 
 Gradients:
+
+    Light: #927CEB + F4928D
+    Dark: #000 + #2b2433 + #534784
 
 Fonts:
 
 Font Sizes:
 
-    Body Regular: 18px Regular
-    Buttons: 16 Semi-Bold
+    Heading Primary: 4rem Bold
+    Heading Secondary: 3rem Bold
+    Heading Tetriary: 2rem Light
+    Navigation: 1.4rem Light
+    Body Regular: 1rem Regular
+    Buttons: 1rem Semi-Bold
 
 Branding was defined by user interviews and image sorting to understand the users ideas of innovation and history. They loved beautiful imagery and some futuristic design, but nothing too unfamiliar. They were a little uncomfortable with industrial looking technology. They loved the thought of historical places and time travel, but were turned off by black and white photos.
 
