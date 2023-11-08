@@ -6,7 +6,11 @@ const HeadingSecondary = ({
   additionalClasses?: string;
 }) => {
   return (
-    <h2 className={`font-oswald ${additionalClasses ? additionalClasses : ""}`}>
+    <h2
+      className={`font-oswald text-center max-w-2xl mx-auto ${
+        additionalClasses ? additionalClasses : ""
+      }`}
+    >
       {children}
     </h2>
   );

@@ -2,7 +2,7 @@ import { getByRole, render, screen } from "@testing-library/react";
 import IconBox from "@/components/reusable/IconBox";
 import { SiNextdotjs } from "react-icons/si";
 describe("FullWidth component tests", () => {
-  it("should render screen", () => {
+  it("should render screenn", () => {
     render(
       <IconBox>
         <SiNextdotjs />

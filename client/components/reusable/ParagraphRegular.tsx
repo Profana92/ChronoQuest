@@ -6,7 +6,11 @@ const ParagraphRegular = ({
   additionalClasses?: string;
 }) => {
   return (
-    <p className={`font-normal ${additionalClasses ? additionalClasses : ""}`}>
+    <p
+      className={`font-normal max-w-2xl mx-auto ${
+        additionalClasses ? additionalClasses : ""
+      }`}
+    >
       {children}
     </p>
   );
