@@ -6,11 +6,7 @@ const HeadingPrimary = ({
   additionalClasses?: string;
 }) => {
   return (
-    <h1
-      className={`font-oswald text-center max-w-2xl mx-auto ${
-        additionalClasses ? additionalClasses : ""
-      }`}
-    >
+    <h1 className={`font-oswald text-6xl text-center max-w-2xl mx-auto ${additionalClasses ? additionalClasses : ""}`}>
       {children}
     </h1>
   );

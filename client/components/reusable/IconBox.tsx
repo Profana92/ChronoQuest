@@ -10,7 +10,7 @@ const IconBox = ({ link, children, additionalClasses }: Props) => {
       <div className="rounded-md bg-gradient-to-br from-[#927CEB] to-[#F4928D] p-[1px]">
         <div
           data-testid="IconBoxId"
-          className={`bg-[#2b2433] rounded-[4px] w-10 h-10 flex justify-center items-center p-2 ${
+          className={`bg-[#2b2433] rounded-[5px] w-10 h-10 flex justify-center items-center p-2 ${
             additionalClasses ? additionalClasses : ""
           }`}
         >

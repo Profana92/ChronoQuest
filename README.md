@@ -6,22 +6,22 @@ Colors:
 
     Primary: #534784
     Secondary: #927CEB
-    Tetriary: #2b2433
+    Tetriary: #2C2444
     Neutral Dark: #161322
-    Neutral WHite: #FCFAF6
+    Neutral White: #FCFAF6
     Accent Green: #2EE09A
     Accent Pink: #F4928D
 
 Gradients:
 
     Light: #927CEB + F4928D
-    Dark: #000 + #2b2433 + #534784
+    Dark: #000 + #2C2444 + #534784
 
 Fonts:
 
 Font Sizes:
 
-    Heading Primary: 4rem Bold
+    Heading Primary: 3.75rem Bold
     Heading Secondary: 3rem Bold
     Heading Tetriary: 2rem Light
     Navigation: 1.4rem Light

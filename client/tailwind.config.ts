@@ -8,6 +8,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        Primary: "#534784",
+        Secondary: "#927CEB",
+        Tetriary: "#2C2444",
+        "Neutral-Dark": "#161322",
+        "Neutral-White": "#FCFAF6",
+        "Accent-Green": "#2EE09A",
+        "Accent-Pink": "#F4928D",
+      },
       fontFamily: {
         lato: ["var(--font-lato)"],
         oswald: ["var(--font-oswald)"],
