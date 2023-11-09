@@ -7,7 +7,7 @@ const Header = async () => {
   const session = await getServerSession(authOptions);
 
   return (
-    <header className="flex gap-7">
+    <header className="fixed w-full flex gap-7 h-14 items-center justify-center bg-black/25">
       <Link href="/">Home</Link>
       <Link href="/protected/client">Protected (client)</Link>
       <Link href="/protected/server">Protected (server)</Link>

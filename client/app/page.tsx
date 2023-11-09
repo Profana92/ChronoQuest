@@ -16,26 +16,34 @@ import { SiMongodb } from "react-icons/si";
 import { SiMongoose } from "react-icons/si";
 import { SiReact } from "react-icons/si";
 import { SiTestinglibrary } from "react-icons/si";
+import timePortal from "../public/backgrounds/timeHole.png";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <>
       <SectionContainer>
-        <FullWidthContainer>
-          <LimitedWidthContainer>
-            <HalfWidthContainer>
+        <FullWidthContainer
+          additionalClasses="h-[100vh] bg-gradient-to-br from-black from-10% via-Tetriary via-60% to-Primary pt-14"
+          grainy={true}
+        >
+          <LimitedWidthContainer additionalClasses="h-full">
+            <HalfWidthContainer additionalClasses="flex flex-col justify-center">
               <HeadingPrimary>Welcome to ChronoQuest: Your Epic Journey Through Time!</HeadingPrimary>
-              <ParagraphRegular>
+              <ParagraphRegular additionalClasses="text-center">
                 In ChronoQuest, you&apos;ll step into the shoes of a daring time traveler, equipped with a
                 state-of-the-art time machine, ready to explore the depths of history and the mysteries of the future.
                 Your quest will take you to exotic locales, ancient civilizations, and even alternate dimensions.
                 It&apos;s time to make your mark on history, or perhaps even rewrite it!
               </ParagraphRegular>
-              <LinkPrimary to="/signin">Sign In</LinkPrimary>
-              <ParagraphRegular>Not yet registered?</ParagraphRegular>
-              <LinkPrimary to="/signup">Sign Up</LinkPrimary>
+              <div className="flex gap-5 justify-center">
+                <LinkPrimary to="/signin">Sign In</LinkPrimary>
+                <LinkPrimary to="/signup">Sign Up</LinkPrimary>
+              </div>
             </HalfWidthContainer>
-            <HalfWidthContainer>dsds</HalfWidthContainer>
+            <HalfWidthContainer additionalClasses="flex justify-center">
+              <Image src={timePortal} alt="Time Portal" style={{ maxWidth: "75%" }} />
+            </HalfWidthContainer>
           </LimitedWidthContainer>
         </FullWidthContainer>
       </SectionContainer>

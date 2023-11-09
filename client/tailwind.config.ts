@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-
+import grainy from "./public/backgrounds/grainy.png";
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -20,6 +20,9 @@ const config: Config = {
       fontFamily: {
         lato: ["var(--font-lato)"],
         oswald: ["var(--font-oswald)"],
+      },
+      backgroundImage: {
+        grainy: "url('/backgrounds/grainy.png')",
       },
     },
   },

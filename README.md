@@ -21,12 +21,12 @@ Fonts:
 
 Font Sizes:
 
-    Heading Primary: 3.75rem Bold
-    Heading Secondary: 3rem Bold
-    Heading Tetriary: 2rem Light
-    Navigation: 1.4rem Light
-    Body Regular: 1rem Regular
-    Buttons: 1rem Semi-Bold
+    Heading Primary: 3.75rem Bold | 2rem Bold
+    Heading Secondary: 3rem Bold |
+    Heading Tetriary: 2rem Light |
+    Navigation: 1.4rem Light |
+    Body Regular: 1.1rem Regular=
+    Buttons: 1rem Semi-Bold |
 
 Branding was defined by user interviews and image sorting to understand the users ideas of innovation and history. They loved beautiful imagery and some futuristic design, but nothing too unfamiliar. They were a little uncomfortable with industrial looking technology. They loved the thought of historical places and time travel, but were turned off by black and white photos.
 

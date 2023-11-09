@@ -5,7 +5,11 @@ const ParagraphRegular = ({
   children: React.ReactNode | string;
   additionalClasses?: string;
 }) => {
-  return <p className={`font-normal max-w-7xl mx-auto ${additionalClasses ? additionalClasses : ""}`}>{children}</p>;
+  return (
+    <p className={`font-normal max-w-7xl mx-auto text-base ${additionalClasses ? additionalClasses : ""}`}>
+      {children}
+    </p>
+  );
 };
 
 export default ParagraphRegular;
