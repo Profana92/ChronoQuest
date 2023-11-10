@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`h-full ${oswald.variable} ${lato.variable}`}>
-      <body className="min-h-full font-lato text-Neutral-White">
+      <body className="min-h-full font-lato text-Neutral-White bg-Neutral-Dark">
         <Provider>
           <Header />
           <main>{children}</main>
