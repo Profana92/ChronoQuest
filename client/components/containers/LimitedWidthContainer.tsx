@@ -6,7 +6,7 @@ const LimitedWidthContainer = ({ children, additionalClasses }: Props) => {
     <div
       className={`${
         additionalClasses ? additionalClasses : ""
-      } max-w-[1320px] mx-auto p-10 lg:px-5 lg:py-10 flex gap-10 flex-col lg:flex-row items-center`}
+      } max-w-[1320px] mx-auto p-10 lg:px-5 lg:py-10 flex flex-col gap-10 justify-center items-center`}
       data-testid="FullWidthDiv"
     >
       {children}
