@@ -88,35 +88,35 @@ export default function Home() {
       <SectionContainer>
         <LimitedWidthContainer>
           <HeadingSecondary>This project uses:</HeadingSecondary>
-        </LimitedWidthContainer>
-        <LimitedWidthContainer additionalClasses="flex flex-row gap-3 justify-center items-center">
-          <IconBox link="https://nextjs.org/">
-            <SiNextdotjs size="1.6rem" color="#fff" />
-          </IconBox>
-          <IconBox link="https://react.dev/">
-            <SiReact size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://www.typescriptlang.org/">
-            <SiTypescript size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://tailwindcss.com/">
-            <SiTailwindcss size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://jestjs.io/">
-            <SiJest size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://testing-library.com/">
-            <SiTestinglibrary size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://jwt.io/">
-            <SiJsonwebtokens size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://www.mongodb.com/">
-            <SiMongodb size="1.6rem" />
-          </IconBox>
-          <IconBox link="https://mongoosejs.com/">
-            <SiMongoose size="1.6rem" />
-          </IconBox>
+          <div className="flex flex-row gap-3 justify-center items-center">
+            <IconBox link="https://nextjs.org/">
+              <SiNextdotjs size="1.6rem" color="#fff" />
+            </IconBox>
+            <IconBox link="https://react.dev/">
+              <SiReact size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://www.typescriptlang.org/">
+              <SiTypescript size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://tailwindcss.com/">
+              <SiTailwindcss size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://jestjs.io/">
+              <SiJest size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://testing-library.com/">
+              <SiTestinglibrary size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://jwt.io/">
+              <SiJsonwebtokens size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://www.mongodb.com/">
+              <SiMongodb size="1.6rem" />
+            </IconBox>
+            <IconBox link="https://mongoosejs.com/">
+              <SiMongoose size="1.6rem" />
+            </IconBox>
+          </div>
         </LimitedWidthContainer>
       </SectionContainer>
     </>
