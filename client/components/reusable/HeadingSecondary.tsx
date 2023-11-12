@@ -7,7 +7,7 @@ const HeadingSecondary = ({
 }) => {
   return (
     <h2
-      className={`font-oswald text-5xl text-center max-w-2xl mx-auto my-8 ${
+      className={`lg:max-w-[70vw] font-oswald text-5xl text-center max-w-2xl mx-auto mb-8 ${
         additionalClasses ? additionalClasses : ""
       }`}
     >

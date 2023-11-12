@@ -22,15 +22,17 @@ export default function Home() {
     <>
       <SectionContainer>
         <FullWidthContainer additionalClasses="min-h-[100vh] bg-indexPageHero bg-cover bg-blend-darken bg-bottom pt-14">
-          <LimitedWidthContainer additionalClasses="min-h-[calc(100vh-56px)]">
+          <LimitedWidthContainer additionalClasses="min-h-[calc(100vh-56px)] flex flex-col gap-10 justify-center items-center">
             <HeadingPrimary>
               Welcome to ChronoQuest <br /> Your Epic Journey Through Time!
             </HeadingPrimary>
             <ParagraphRegular additionalClasses="text-center">
-              In ChronoQuest, you&apos;ll step into the shoes of a daring time traveler, equipped with a
-              state-of-the-art time machine, ready to explore the depths of history and the mysteries of the future.
-              Your quest will take you to exotic locales, ancient civilizations, and even alternate dimensions.
-              It&apos;s time to make your mark on history, or perhaps even rewrite it!
+              In ChronoQuest, you&apos;ll step into the shoes of a daring time
+              traveler, equipped with a state-of-the-art time machine, ready to
+              explore the depths of history and the mysteries of the future.
+              Your quest will take you to exotic locales, ancient civilizations,
+              and even alternate dimensions. It&apos;s time to make your mark on
+              history, or perhaps even rewrite it!
             </ParagraphRegular>
             <div className="flex gap-5 justify-center">
               <LinkPrimary to="/signin">Sign In</LinkPrimary>
@@ -42,12 +44,25 @@ export default function Home() {
       <SectionContainer>
         <LimitedWidthContainer>
           <HeadingSecondary>What Awaits You:</HeadingSecondary>
-          <ul>
-            <li>🌐 Explore diverse historical eras, from the distant past to the distant future.</li>
-            <li>🚀 Unlock your time machine&apos;s potential and master time manipulation.</li>
-            <li>💡 Solve puzzles, uncover secrets, and face temporal challenges.</li>
-            <li>⚔️ Encounter legendary figures and alter the course of history.</li>
-            <li>🌌 Unravel the fabric of time and discover the hidden truths of the universe.</li>
+          <ul className="text-center">
+            <li>
+              🌐 Explore diverse historical eras, from the distant past to the
+              distant future. 🌐
+            </li>
+            <li>
+              🚀 Unlock your time machine&apos;s potential and master time
+              manipulation. 🚀
+            </li>
+            <li>
+              💡 Solve puzzles, uncover secrets, and face temporal challenges.💡
+            </li>
+            <li>
+              ⚔️ Encounter legendary figures and alter the course of history. ⚔️
+            </li>
+            <li>
+              🌌 Unravel the fabric of time and discover the hidden truths of
+              the universe. 🌌
+            </li>
           </ul>
         </LimitedWidthContainer>
       </SectionContainer>
@@ -55,15 +70,18 @@ export default function Home() {
         <LimitedWidthContainer>
           <HeadingSecondary>New to Time Travel? No worries!</HeadingSecondary>
           <ParagraphRegular>
-            ChronoQuest offers a helpful tutorial and an expert guide to get you started. We&apos;ve got your back as
-            you traverse the fourth dimension!
+            ChronoQuest offers a helpful tutorial and an expert guide to get you
+            started. We&apos;ve got your back as you traverse the fourth
+            dimension!
           </ParagraphRegular>
           <LinkPrimary to="/how-to" additionalClasses="mx-auto">
             Learn More!
           </LinkPrimary>
           <ParagraphRegular>
-            Get ready to unravel the threads of time and create your own destiny. Welcome to ChronoQuest, where history
-            is your playground, and the future is in your hands. Your time-traveling odyssey begins now!
+            Get ready to unravel the threads of time and create your own
+            destiny. Welcome to ChronoQuest, where history is your playground,
+            and the future is in your hands. Your time-traveling odyssey begins
+            now!
           </ParagraphRegular>
         </LimitedWidthContainer>
       </SectionContainer>
@@ -71,7 +89,7 @@ export default function Home() {
         <LimitedWidthContainer>
           <HeadingSecondary>This project uses:</HeadingSecondary>
         </LimitedWidthContainer>
-        <LimitedWidthContainer additionalClasses="gap-3 !flex-row">
+        <LimitedWidthContainer additionalClasses="flex flex-row gap-3 justify-center items-center">
           <IconBox link="https://nextjs.org/">
             <SiNextdotjs size="1.6rem" color="#fff" />
           </IconBox>
