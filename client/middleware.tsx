@@ -20,4 +20,4 @@ export default withAuth(
   }
 );
 
-export const config = { matcher: ["/profile/:path*", "/protected/:path*", "/dashboard/:path*"] };
+export const config = { matcher: ["/profile/:path*", "/protected/:path*", "/dashboard/:path*", "/game/:path*"] };

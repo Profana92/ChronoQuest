@@ -1,6 +1,7 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ProtectedComponent from "@/components/ProtectedComponent";
+import User from "@/models/userModel";
 import { getServerSession } from "next-auth/next";
 const ProtectedServerPage = async () => {
   const session = await getServerSession(authOptions);

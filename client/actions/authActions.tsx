@@ -57,7 +57,7 @@ export async function verifyWithCredentials(token) {
     redirect(`/errors?error=${error?.message}`);
   }
 }
-export async function changePasswordWithCredentials({ old_pass, new_pass }) {
+export async function changePasswordWithCredentials({ old_pass, new_pass, new_again_pass }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) throw new Error("You are not authorized to perform that action");
@@ -67,6 +67,7 @@ export async function changePasswordWithCredentials({ old_pass, new_pass }) {
     if (!user) throw new Error("User does not exist!");
     const compare = await bcrypt.compare(old_pass, user.password);
     if (!compare) throw new Error("Old password does not match!");
+    if (new_pass !== new_again_pass) throw new Error("New passwords does not match!");
     const newPass = await bcrypt.hash(new_pass, 12);
     await User.findByIdAndUpdate(user._id, { password: newPass });
     return {

@@ -5,10 +5,10 @@ import { getServerSession } from "next-auth";
 const ProfileServerPage = async () => {
   const session = await getServerSession(authOptions);
   return (
-    <div>
+    <section className="pt-14">
       <h1>Profile Server Side</h1>
       <ProfileComponent user={session?.user} />
-    </div>
+    </section>
   );
 };
 
