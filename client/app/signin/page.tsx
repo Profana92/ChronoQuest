@@ -5,7 +5,11 @@ type Props = {
   searchParams: { callbackUrl: string };
 };
 const SignInPage = ({ searchParams: { callbackUrl } }: Props) => {
-  return <SignIn callbackUrl={callbackUrl || "/"} />;
+  return (
+    <section className="pt-14">
+      <SignIn callbackUrl={callbackUrl || "/"} />
+    </section>
+  );
 };
 
 export default SignInPage;

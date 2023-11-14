@@ -14,7 +14,7 @@ type Props = {
   };
 };
 const ProtectedComponent = ({ user }: Props) => {
-  console.log(user);
+  // console.log(user);
   const { data: session } = useSession();
   return <p>You are logged in as {session?.user?.name || user?.name}</p>;
 };

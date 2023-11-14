@@ -11,7 +11,7 @@ const SignIn = ({ callbackUrl }: Props) => {
   async function handleCredentialsLogin(formData) {
     const email = formData.get("email");
     const password = formData.get("password");
-    await signIn("credentials", { email, password, callbackUrl });
+    await signIn("credentials", { email, password, callbackUrl: "/game" });
   }
 
   async function handleForgotPassword(formData) {
@@ -27,7 +27,7 @@ const SignIn = ({ callbackUrl }: Props) => {
       <div>
         <button
           onClick={() => {
-            signIn("google", { callbackUrl });
+            signIn("google", { callbackUrl: "/game" });
           }}
         >
           Continue with Google
