@@ -18,9 +18,10 @@ const Header = async () => {
       {session ? (
         <>
           <Link href="/protected/server">Game</Link>
-          <Link href="/profile/client">Profile (client)</Link>
+          {/* <Link href="/profile/client">Profile (client)</Link> */}
           <Link href="/profile/server">Profile (server)</Link>
-          <Link href="/dashboard">Admin Dashboard</Link>
+          {session?.user?.role === "admin" ? <Link href="/dashboard">Admin Dashboard</Link> : ""}
+          {/* <Link href="/dashboard">Admin Dashboard</Link> */}
           <SignOut />
         </>
       ) : (
