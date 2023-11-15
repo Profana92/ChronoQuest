@@ -9,14 +9,14 @@ const Header = async () => {
   return (
     <header className="fixed w-full flex gap-7 h-14 items-center justify-center bg-black/25">
       <Link href="/">Home</Link>
+      {session ? <Link href="/game">Game</Link> : ""}
       <Link href="/support">Support</Link>
       <Link href="/leaderboard">Leaderboard</Link>
       <Link href="/authors">Authors</Link>
       <Link href="/donate">Donate</Link>
       {session ? (
         <>
-          <Link href="/game">Game</Link>
-          <Link href="/profile/server">Profile (server)</Link>
+          <Link href="/profile/server">Profile</Link>
           {session?.user?.role === "admin" ? <Link href="/dashboard">Admin Dashboard</Link> : ""}
           <SignOut />
         </>
