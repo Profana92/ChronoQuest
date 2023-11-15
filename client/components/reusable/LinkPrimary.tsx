@@ -9,7 +9,7 @@ const LinkPrimary = ({ children, to, additionalClasses }: Props) => {
     <div className="shadow-lg rounded-md bg-gradient-to-br from-[#927CEB] to-[#F4928D] p-[1px] w-32 my-5">
       <Link
         href={to}
-        className={`w-full h-fullfont-lato ${
+        className={`w-full h-full font-lato ${
           additionalClasses ? additionalClasses : ""
         }`}
       >
