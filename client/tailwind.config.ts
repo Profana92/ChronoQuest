@@ -12,9 +12,9 @@ const config: Config = {
         Primary: "#534784",
         Secondary: "#927CEB",
         Tetriary: "#2C2444",
-        "Neutral-Dark": "#13111D",
+        "Neutral-Dark": "#0E0A21",
         "Neutral-White": "#FCFAF6",
-        "Accent-Green": "#2EE09A",
+        "Accent-Green": "#5DF1FC",
         "Accent-Pink": "#F4928D",
       },
       fontFamily: {
@@ -23,7 +23,11 @@ const config: Config = {
       },
       backgroundImage: {
         grainy: "url('/backgrounds/grainy.png')",
-        indexPageHero: "url('/backgrounds/indexPage/HeroBg.jpg')",
+
+        indexPageHero: [
+          "linear-gradient(to left bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0))",
+          "url('/backgrounds/indexPage/HeroBg.jpg')",
+        ],
       },
     },
   },

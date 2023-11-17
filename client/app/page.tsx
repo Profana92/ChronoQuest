@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <>
       <SectionContainer>
-        <FullWidthContainer additionalClasses="min-h-[100vh] bg-indexPageHero bg-cover bg-blend-darken bg-bottom">
+        <FullWidthContainer additionalClasses="min-h-[100vh] bg-indexPageHero bg-cover bg-bottom">
           <LimitedWidthContainer additionalClasses="min-h-[calc(100vh-56px)] flex flex-col gap-10 justify-center items-center">
             <HeadingPrimary>
               Welcome to ChronoQuest <br /> Your Epic Journey Through Time!
