@@ -5,6 +5,8 @@ import Form from "../global/Form";
 import Button from "../global/Button";
 import { SiGoogle } from "react-icons/si";
 import { forgotPasswordWithCredentials } from "@/actions/authActions";
+import HeadingSecondary from "../reusable/HeadingSecondary";
+import ParagraphRegular from "../reusable/ParagraphRegular";
 type Props = {
   callbackUrl: string;
 };
@@ -23,29 +25,29 @@ const SignIn = ({ callbackUrl }: Props) => {
   }
   return (
     <div>
-      <h2>Sign in:</h2>
-
+      <HeadingSecondary>Sign in:</HeadingSecondary>
+      <ParagraphRegular>
+        {" "}
+        Greetings, Time Traveler. Prepare for a journey through time in our browser-based game. To get started, a brief
+        stop at the login page is required. If you're already acquainted with the temporal landscape, sign in.
+        Newcomers, create an account to join the ranks.
+      </ParagraphRegular>
       {/* Sign in with credentials*/}
       <Form action={handleCredentialsLogin}>
         <input type="email" name="email" placeholder="Email" required />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          required
-        />
+        <input type="password" name="password" placeholder="Password" required />
         <Button value="Credentials" />
       </Form>
 
       {/* Google login */}
-      <div className="shadow-lg rounded-md bg-gradient-to-br from-[#927CEB] to-[#F4928D] p-[1px] w-12 my-5">
+      <div className="inline-block shadow-lg rounded-md bg-gradient-to-br from-[#927CEB] to-[#F4928D] p-[1px] my-5">
         <button
-          className="w-full cursor-pointer rounded-[5px] text-center bg-Neutral-Dark hover:bg-Tetriary py-2"
+          className="w-10 h-10 cursor-pointer rounded-[5px] text-center bg-Neutral-Dark hover:bg-Tetriary py-2"
           onClick={() => {
             signIn("google", { callbackUrl: "/game" });
           }}
         >
-          <SiGoogle className="w-full" />
+          <SiGoogle className="w-full" size="1.6rem" />
         </button>
       </div>
       {/* Forgot password*/}

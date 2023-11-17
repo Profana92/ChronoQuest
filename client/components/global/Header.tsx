@@ -8,8 +8,7 @@ const Header = async () => {
 
   return (
     <header className="fixed w-full flex gap-7 h-14 items-center justify-center bg-black/25">
-      <Link href="/">Home</Link>
-      {session ? <Link href="/game">Game</Link> : ""}
+      {session ? <Link href="/game">Game</Link> : <Link href="/">Home</Link>}
       <Link href="/support">Support</Link>
       <Link href="/leaderboard">Leaderboard</Link>
       <Link href="/authors">Authors</Link>
