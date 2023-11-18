@@ -24,10 +24,10 @@ const config: Config = {
       backgroundImage: {
         grainy: "url('/backgrounds/grainy.png')",
 
-        indexPageHero: [
-          "linear-gradient(to left bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0))",
-          "url('/backgrounds/indexPage/HeroBg.jpg')",
-        ],
+        indexPageHero: ["url('/backgrounds/indexPage/background.png')"],
+        indexPageMountainsBottonLeft: ["url('/backgrounds/indexPage/mountains_bottom_left.svg')"],
+        indexPagePlanets: ["url('/backgrounds/indexPage/planets.png')"],
+        indexPageMountainsLower: ["url('/backgrounds/indexPage/mountains_lower.png')"],
       },
     },
   },
