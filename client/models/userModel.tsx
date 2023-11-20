@@ -8,6 +8,22 @@ const userSchema = new Schema(
     image: String,
     role: { type: String, default: "user" },
     provider: { type: String, default: "credentials" },
+    character: {
+      health: Number,
+      title: { type: String },
+      class: String,
+      companion: String,
+      level: Number,
+      xp: Number,
+      str: Number,
+      dex: Number,
+      int: Number,
+      cha: Number,
+      spd: Number,
+      acc: Number,
+      ap: Number,
+      sex: String,
+    },
   },
   { timestamps: true }
 );

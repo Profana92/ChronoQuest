@@ -1,6 +1,6 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import ProtectedComponent from "@/components/ProtectedComponent";
+import ProfileComponent from "@/components/profile";
 import User from "@/models/userModel";
 import { getServerSession } from "next-auth/next";
 const PlayerPage = async () => {
@@ -13,10 +13,10 @@ const PlayerPage = async () => {
   const role = await searchHandler();
   console.log("role", role);
   return (
-    <div>
-      <h1>this is a Server Side Protected Page</h1>
-      <ProtectedComponent user={session?.user} />
-    </div>
+    <section className="pt-14">
+      <h1>Profile Server Side</h1>
+      <ProfileComponent user={session?.user} />
+    </section>
   );
 };
 
