@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <SectionContainer>
+      <SectionContainer additionalClasses="border-solid border-0 border-t-4 border-[#02e4e7]">
         <LimitedWidthContainer>
           <HeadingSecondary>What Awaits You:</HeadingSecondary>
           <ul className="text-center">

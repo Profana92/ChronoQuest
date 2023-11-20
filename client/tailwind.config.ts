@@ -25,9 +25,6 @@ const config: Config = {
         grainy: "url('/backgrounds/grainy.png')",
 
         indexPageHero: ["url('/backgrounds/indexPage/background.png')"],
-        indexPageMountainsBottonLeft: ["url('/backgrounds/indexPage/mountains_bottom_left.svg')"],
-        indexPagePlanets: ["url('/backgrounds/indexPage/planets.png')"],
-        indexPageMountainsLower: ["url('/backgrounds/indexPage/mountains_lower.png')"],
       },
     },
   },
