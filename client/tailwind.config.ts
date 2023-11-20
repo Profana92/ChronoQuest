@@ -24,10 +24,7 @@ const config: Config = {
       backgroundImage: {
         grainy: "url('/backgrounds/grainy.png')",
 
-        indexPageHero: [
-          "linear-gradient(to left bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0))",
-          "url('/backgrounds/indexPage/HeroBg.jpg')",
-        ],
+        indexPageHero: ["url('/backgrounds/indexPage/background.png')"],
       },
     },
   },
