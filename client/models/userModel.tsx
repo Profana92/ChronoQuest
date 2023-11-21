@@ -9,7 +9,7 @@ const userSchema = new Schema(
     role: { type: String, default: "user" },
     provider: { type: String, default: "credentials" },
     character: {
-      health: Number,
+      health: { amount: Number, lastUpdatedAt: Date },
       title: { type: String },
       class: String,
       companion: String,
@@ -21,8 +21,9 @@ const userSchema = new Schema(
       cha: Number,
       spd: Number,
       acc: Number,
-      ap: Number,
+      ap: { amount: Number, lastUpdatedAt: Date },
       sex: String,
+      gold: Number,
     },
   },
   { timestamps: true }

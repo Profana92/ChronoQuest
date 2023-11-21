@@ -4,7 +4,7 @@ import User from "@/models/userModel";
 import { getServerSession } from "next-auth/next";
 import NewCharacter from "@/components/character/NewCharacter";
 import CharacterInfo from "@/components/character/CharacterInfo";
-
+import ActionPointsUpdate from "@/components/character/ActionPointsUpdate";
 const ProtectedServerPage = async () => {
   const session = await getServerSession(authOptions);
   const characterExists = async () => {
@@ -15,9 +15,11 @@ const ProtectedServerPage = async () => {
   };
 
   const characterData = await characterExists();
+  // const actionPoints = await updateActionPoints();
 
   return (
     <section className="pt-14">
+      <ActionPointsUpdate />
       {characterData?.title ? <CharacterInfo characterData={characterData} /> : <NewCharacter />}
     </section>
   );

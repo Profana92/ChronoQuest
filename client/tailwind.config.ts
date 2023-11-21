@@ -23,8 +23,7 @@ const config: Config = {
       },
       backgroundImage: {
         grainy: "url('/backgrounds/grainy.png')",
-
-        indexPageHero: ["url('/backgrounds/indexPage/background.png')"],
+        indexPageHero: "url('/backgrounds/indexPage/background.png')",
       },
     },
   },
