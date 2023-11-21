@@ -9,7 +9,7 @@ import { Oswald, Lato } from "next/font/google";
 
 const oswald = localFont({
   src: "./Oswald-VariableFont_wght.ttf",
-  display: "block",
+  display: "swap",
   variable: "--font-oswald",
   preload: true,
 });
@@ -17,7 +17,7 @@ const oswald = localFont({
 const lato = Lato({
   subsets: ["latin"],
   weight: ["100", "300", "400", "700", "900"],
-  display: "block",
+  display: "swap",
   variable: "--font-lato",
 });
 

@@ -2,7 +2,7 @@ import React from "react";
 import { GiGoldBar, GiAxeSword, GiAbdominalArmor, GiHealthPotion, GiRank3 } from "react-icons/gi";
 const CharacterInfo = ({ characterData }) => {
   return (
-    <div className="flex flex-col w-96 p-6 border border-solid border-red-500">
+    <div className="flex flex-col w-96 p-6 border border-solid border-red-500 text-sm">
       <p className="block w-full text-center p-5 font-semibold font-oswald text-xl tracking-wide border border-solid border-red-500">
         {characterData.title}
       </p>
