@@ -1,5 +1,15 @@
 import React from "react";
-import { GiGoldBar, GiAxeSword, GiAbdominalArmor, GiHealthPotion, GiRank3 } from "react-icons/gi";
+import {
+  GiGoldBar,
+  GiAxeSword,
+  GiAbdominalArmor,
+  GiHealthPotion,
+  GiRank3,
+  GiArmorPunch,
+  GiAssassinPocket,
+  GiBeamsAura,
+} from "react-icons/gi";
+import ProgressBar from "./ProgressBar";
 const CharacterInfo = ({ characterData }) => {
   return (
     <div className="flex flex-col w-96 p-6 border border-solid border-red-500 text-sm">
@@ -9,7 +19,7 @@ const CharacterInfo = ({ characterData }) => {
       <div className="flex flex-row justify-between border border-solid border-red-500">
         <p>
           <GiHealthPotion className="inline text-amber-500 text-2xl mr-2" />
-          <span> Health: {characterData.health.amount}</span>
+          <span>Health: {characterData.health.amount}</span>
         </p>
         <p>
           <span className="mr-2">Action Points: {characterData.ap.amount}</span>
@@ -18,7 +28,8 @@ const CharacterInfo = ({ characterData }) => {
       </div>
       <div className="flex flex-row justify-between border border-solid border-red-500">
         <p>
-          <GiGoldBar className="inline text-amber-500 text-2xl  mr-2" /> Gold: {characterData.gold}
+          <GiGoldBar className="inline text-amber-500 text-2xl mr-2" />
+          Gold: {characterData.gold}
         </p>
         <p>
           <span className="mr-2">Level: {characterData.level}</span>
@@ -26,39 +37,71 @@ const CharacterInfo = ({ characterData }) => {
         </p>
       </div>
       <div className="flex flex-row justify-between border border-solid border-red-500">
-        <p>XP: {characterData.xp}</p>
+        <p>
+          <GiAbdominalArmor className="inline text-amber-500 text-2xl mr-2" />
+          <span className="">Armor: {characterData.armor}</span>
+        </p>
+        <p>
+          <span className="mr-2">XP: {characterData.xp}</span>
+          <GiRank3 className="inline text-amber-500 text-2xl" />
+        </p>
       </div>
       <div className="flex flex-col">
-        <div className="mb-1 text-base font-medium text-green-700 dark:text-green-500 border border-solid border-red-500">
-          <p className="align-middle">
-            <GiHealthPotion className="inline text-amber-500 text-2xl mr-2" />
-            Health:
-          </p>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4 dark:bg-gray-700">
-            <div
-              className="bg-green-600 h-2.5 rounded-full dark:bg-green-500"
-              style={{ width: `${characterData.health.amount + "%"}` }}
-            ></div>{" "}
-            <p>{characterData.health.amount + "%"}</p>
-          </div>
-        </div>
-
-        <p>
-          <GiAbdominalArmor className="inline text-amber-500 text-2xl" />
-          Armor: {characterData.armor}
-        </p>
-
-        <p>Str: {characterData.str}</p>
-        <p>Dex: {characterData.dex}</p>
-        <p>int: {characterData.int}</p>
-        <p>cha: {characterData.cha}</p>
-        <p>spd: {characterData.spd}</p>
-        <p>acc: {characterData.acc}</p>
+        <ProgressBar
+          icon={<GiHealthPotion className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.health.amount}
+          maxValue={characterData.health.maxAmount}
+          textContent="Health:"
+          type="percentage"
+        />
+        <ProgressBar
+          icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.str.amount}
+          textContent="Strength:"
+          maxValue={characterData.str.maxAmount}
+          type="normal"
+        />
+        <ProgressBar
+          icon={<GiAssassinPocket className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.dex.amount}
+          textContent="Dexterity:"
+          maxValue={characterData.dex.maxAmount}
+          type="normal"
+        />
+        <ProgressBar
+          icon={<GiBeamsAura className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.int.amount}
+          textContent="Intelligence:"
+          maxValue={characterData.int.maxAmount}
+          type="normal"
+        />
+        <ProgressBar
+          icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.cha.amount}
+          textContent="Charisma:"
+          maxValue={characterData.cha.maxAmount}
+          type="normal"
+        />
+        <ProgressBar
+          icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.spd.amount}
+          textContent="Speed:"
+          maxValue={characterData.spd.maxAmount}
+          type="normal"
+        />
+        <ProgressBar
+          icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={characterData.acc.amount}
+          textContent="Accuracy:"
+          maxValue={characterData.acc.maxAmount}
+          type="normal"
+        />
       </div>
-      <div></div>
-
-      <p>Class: {characterData.class}</p>
-      <p>Companion: {characterData.companion}</p>
+      {characterData.companion.companionName !== "none" ? (
+        <p>Companion: {characterData.companion.companionName}</p>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

@@ -31,7 +31,7 @@ const ActionPointsUpdate = () => {
       </button>
       <button
         onClick={() => {
-          updateXpAndLevel({ expirienceGain: 100 });
+          updateXpAndLevel({ expirienceGain: 10 });
           router.refresh();
         }}
       >
@@ -39,7 +39,7 @@ const ActionPointsUpdate = () => {
       </button>
       <button
         onClick={() => {
-          updateXpAndLevel({ expirienceGain: -100 });
+          updateXpAndLevel({ expirienceGain: -10 });
           router.refresh();
         }}
       >
