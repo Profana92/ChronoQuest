@@ -3,7 +3,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
-import SectionContainer from "@/components/containers/SectionContainer";
 import HeadingPrimary from "@/components/reusable/HeadingPrimary";
 import ParagraphRegular from "@/components/reusable/ParagraphRegular";
 import LinkPrimary from "@/components/reusable/LinkPrimary";
@@ -16,15 +15,20 @@ const Hero = () => {
   });
   const mountainsBottomLeftY = useTransform(scrollYProgress, [0, 1], [0, 50]);
   const mountainsLower = useTransform(scrollYProgress, [0, 1], [0, 250]);
-  const mountainsUpper = useTransform(scrollYProgress, [0, 1], [0, 400]);
-  const planetsY = useTransform(scrollYProgress, [0, 1], [0, 700]);
+  const mountainsUpper = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const planetsY = useTransform(scrollYProgress, [0, 1], [0, 1200]);
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 1000]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, 500]);
 
   return (
-    <div
-      className="w-full h-screen overflow-hidden relative grid place-items-center bg-indexPageHero bg-cover bg-fixed"
-      ref={ref}
-    >
+    <div className="w-full h-screen overflow-hidden relative grid place-items-center" ref={ref}>
+      <motion.div
+        className="absolute inset-0 bg-center bg-cover"
+        style={{
+          backgroundImage: `url('/backgrounds/indexPage/background.png')`,
+          y: backgroundY,
+        }}
+      />
       <motion.div className="absolute inset-0 z-50" style={{ y: textY }}>
         <LimitedWidthContainer additionalClasses=" min-h-[calc(100vh-56px)] flex flex-col gap-10 justify-center items-center">
           <HeadingPrimary>

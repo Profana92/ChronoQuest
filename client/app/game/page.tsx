@@ -1,22 +1,27 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import ProtectedComponent from "@/components/ProtectedComponent";
 import User from "@/models/userModel";
 import { getServerSession } from "next-auth/next";
+import NewCharacter from "@/components/character/NewCharacter";
+import CharacterInfo from "@/components/character/CharacterInfo";
+import ActionPointsUpdate from "@/components/character/ActionPointsUpdate";
 const ProtectedServerPage = async () => {
   const session = await getServerSession(authOptions);
-  console.log(session);
-  const searchHandler = async () => {
-    const role = await User.findOne({ _id: session.user._id });
-    return role;
+  const characterExists = async () => {
+    const characterData = await User.findOne({ _id: session.user._id });
+    if (characterData.character.title) {
+      return characterData.character;
+    } else return null;
   };
-  const role = await searchHandler();
-  console.log("role", role);
+
+  const characterData = await characterExists();
+  // const actionPoints = await updateActionPoints();
+
   return (
-    <div>
-      <h1>this is a Server Side Protected Page</h1>
-      <ProtectedComponent user={session?.user} />
-    </div>
+    <section className="pt-14">
+      <ActionPointsUpdate />
+      {characterData?.title ? <CharacterInfo characterData={characterData} /> : <NewCharacter />}
+    </section>
   );
 };
 

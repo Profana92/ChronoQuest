@@ -55,3 +55,10 @@ Frontend:
 Backend:
 Express.js: Develop a RESTful API and server using Express.js to support game functionalities.
 MongoDB: Utilize MongoDB to store game data, character progress, and the multiverse's vast information.
+
+Tasks:
+
+- Home Page
+- Login screen
+
+- If player -> game, if ! -> make player
