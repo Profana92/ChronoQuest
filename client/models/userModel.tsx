@@ -21,7 +21,7 @@ const userSchema = new Schema(
       cha: { amount: Number, maxAmount: Number },
       spd: { amount: Number, maxAmount: Number },
       acc: { amount: Number, maxAmount: Number },
-      ap: { amount: Number, lastUpdatedAt: Date },
+      ap: { amount: Number, maxAmount: Number, lastUpdatedAt: Date },
       sex: String,
       gold: Number,
     },

@@ -1,21 +1,41 @@
 "use client";
 import { useEffect } from "react";
-import { updateActionPoints } from "@/actions/playerActions";
-import { updateHealthPoints } from "@/actions/playerActions";
+import {
+  actionPointsNaturalRegeneration,
+  healthPointsNaturalRegeneration,
+  updateHealthPoints,
+  updateActionPoints,
+} from "@/actions/playerActions";
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
 const ActionPointsUpdate = () => {
   const router = useRouter();
   const intervalPerPoint = 60000;
   useEffect(() => {
-    updateHealthPoints({ intervalPerPoint });
-    updateActionPoints({ intervalPerPoint });
+    healthPointsNaturalRegeneration({ intervalPerPoint });
+    actionPointsNaturalRegeneration({ intervalPerPoint });
   });
   return (
     <div className="flex flex-col gap-5">
       <button
         onClick={() => {
-          updateHealthPoints({ intervalPerPoint, valueToRecover: -5 });
+          updateActionPoints({ valueToRecover: -5 });
+          router.refresh();
+        }}
+      >
+        Lose 5 AP
+      </button>
+      <button
+        onClick={() => {
+          updateActionPoints({ valueToRecover: 5 });
+          router.refresh();
+        }}
+      >
+        Gain 5 AP
+      </button>
+      <button
+        onClick={() => {
+          updateHealthPoints({ valueToRecover: -5 });
           router.refresh();
         }}
       >
@@ -23,7 +43,7 @@ const ActionPointsUpdate = () => {
       </button>
       <button
         onClick={() => {
-          updateHealthPoints({ intervalPerPoint, valueToRecover: 5 });
+          updateHealthPoints({ valueToRecover: 5 });
           router.refresh();
         }}
       >

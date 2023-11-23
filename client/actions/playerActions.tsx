@@ -15,7 +15,7 @@ const levelTable = [
   15219400, 15694800,
 ];
 
-export async function addNewCharacter({ name, sex }) {
+export async function addNewCharacter({ name, sex }: { name: string; sex: string }) {
   try {
     const duplicate = await User.findOne({ "character.title": name });
     if (duplicate) throw new Error("Character name already taken, please try again.");
@@ -34,7 +34,7 @@ export async function addNewCharacter({ name, sex }) {
         cha: { amount: 5, maxAmount: 10 },
         spd: { amount: 5, maxAmount: 10 },
         acc: { amount: 5, maxAmount: 10 },
-        ap: { amount: 100, lastUpdatedAt: Date.now() },
+        ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
         sex: sex,
         gold: 10,
       },
@@ -45,7 +45,7 @@ export async function addNewCharacter({ name, sex }) {
   }
 }
 
-export async function updateActionPoints({ intervalPerPoint = 60000 }) {
+export async function actionPointsNaturalRegeneration({ intervalPerPoint = 60000 }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -90,14 +90,15 @@ export async function updateActionPoints({ intervalPerPoint = 60000 }) {
   }
 }
 
-export async function updateHealthPoints({ intervalPerPoint = 60000, valueToRecover = 0 }) {
+export async function healthPointsNaturalRegeneration({ intervalPerPoint = 60000 }) {
   try {
     const session = await getServerSession(authOptions);
     const { amount, maxAmount, lastUpdatedAt } = (
       await User.findOne({ "character.title": session.user.character.title })
     ).character.health;
 
-    if (amount + valueToRecover < 0) {
+    //make sure it is never lower than 0
+    if (amount < 0) {
       const newAmount = await User.updateOne(
         { _id: session?.user?._id },
         {
@@ -107,16 +108,15 @@ export async function updateHealthPoints({ intervalPerPoint = 60000, valueToReco
           },
         }
       );
-      return;
     }
 
     //calculate time difference from last update
     const timeDifference = +new Date() - lastUpdatedAt;
     //calculate action points to add
-    const pointsToAdd = timeDifference / intervalPerPoint + valueToRecover;
-    //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
+    const pointsToAdd = timeDifference / intervalPerPoint;
+    //calculate pointstoUpdate, if amount + points>100, then return maxAmount, if not return actual value.
     const pointsToUpdate = amount + pointsToAdd > maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
-
+    //update db
     if (amount <= maxAmount) {
       const newAmount = await User.updateOne(
         { _id: session?.user?._id },
@@ -130,6 +130,93 @@ export async function updateHealthPoints({ intervalPerPoint = 60000, valueToReco
     }
 
     return { msg: "Player Health updated" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+
+export async function updateHealthPoints({ valueToRecover = 0 }) {
+  try {
+    const session = await getServerSession(authOptions);
+    const { amount, maxAmount, lastUpdatedAt } = (
+      await User.findOne({ "character.title": session.user.character.title })
+    ).character.health;
+
+    //Prevent AP from falling belove 0
+    if (amount + valueToRecover < 0) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            "character.health.amount": 0,
+            "character.health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      return;
+    }
+
+    //if current AP + valueToRecover is even or lesser than maxAmount, set that amount to maxAmount
+    if (amount + valueToRecover <= maxAmount) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            "character.health.amount": amount + valueToRecover,
+            "character.health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+    }
+
+    return { msg: `Player Health updated by : ${valueToRecover}` };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+export async function updateActionPoints({ valueToRecover = 0 }) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    const maxAmount = await User.findOne({
+      "character.title": session.user.character.title,
+    });
+    console.log("maxAmount", maxAmount);
+    console.log("valueToRecover", valueToRecover);
+    //if current ap amount >=100 do nothing
+    // if (amount >= 100) {
+    //   const newAmount = await User.updateOne(
+    //     { _id: session?.user?._id },
+    //     {
+    //       $set: {
+    //         "character.ap.amount": 100,
+    //         "character.ap.lastUpdatedAt": new Date(),
+    //       },
+    //     }
+    //   );
+    //   return;
+    // }
+
+    // //calculate time difference from last update
+    // const timeDifference = +new Date() - lastUpdatedAt;
+    // //calculate action points to add
+    // const pointsToAdd = timeDifference / intervalPerPoint;
+    // //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
+    // const pointsToUpdate = amount + pointsToAdd > 100 ? 100 : Math.round(amount + pointsToAdd);
+
+    // if (timeDifference >= intervalPerPoint && amount <= 100) {
+    //   const newAmount = await User.updateOne(
+    //     { _id: session?.user?._id },
+    //     {
+    //       $set: {
+    //         "character.ap.amount": pointsToUpdate,
+    //         "character.ap.lastUpdatedAt": new Date(),
+    //       },
+    //     }
+    //   );
+    // }
+
+    return { msg: "Player AP updated" };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);
   }
