@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import User from "@/models/userModel";
 import { redirect } from "next/navigation";
+import Item from "@/models/itemModel";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -174,47 +175,44 @@ export async function updateHealthPoints({ valueToRecover = 0 }) {
     redirect(`/errors?error=${error?.message}`);
   }
 }
+
 export async function updateActionPoints({ valueToRecover = 0 }) {
   try {
     const session = await getServerSession(authOptions);
+    const { amount, maxAmount } = (await User.findOne({ "character.title": session.user.character.title })).character
+      .ap;
 
-    const maxAmount = await User.findOne({
-      "character.title": session.user.character.title,
-    });
-    console.log("maxAmount", maxAmount);
-    console.log("valueToRecover", valueToRecover);
-    //if current ap amount >=100 do nothing
-    // if (amount >= 100) {
-    //   const newAmount = await User.updateOne(
-    //     { _id: session?.user?._id },
-    //     {
-    //       $set: {
-    //         "character.ap.amount": 100,
-    //         "character.ap.lastUpdatedAt": new Date(),
-    //       },
-    //     }
-    //   );
-    //   return;
-    // }
+    //make sure that ap never falls below 0
+    if (amount + valueToRecover < 0) {
+      console.log(valueToRecover);
+      return { msg: "You have no AP left" };
+    }
+    // if current ap amount + valueToRecover >=maxAmount set ap to maxAmount, update last update date and do nothing.
 
-    // //calculate time difference from last update
-    // const timeDifference = +new Date() - lastUpdatedAt;
-    // //calculate action points to add
-    // const pointsToAdd = timeDifference / intervalPerPoint;
-    // //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
-    // const pointsToUpdate = amount + pointsToAdd > 100 ? 100 : Math.round(amount + pointsToAdd);
-
-    // if (timeDifference >= intervalPerPoint && amount <= 100) {
-    //   const newAmount = await User.updateOne(
-    //     { _id: session?.user?._id },
-    //     {
-    //       $set: {
-    //         "character.ap.amount": pointsToUpdate,
-    //         "character.ap.lastUpdatedAt": new Date(),
-    //       },
-    //     }
-    //   );
-    // }
+    if (amount + valueToRecover >= maxAmount) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            "character.ap.amount": maxAmount,
+            "character.ap.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      return;
+    }
+    //update value
+    if (amount + valueToRecover <= maxAmount) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            "character.ap.amount": amount + valueToRecover,
+            "character.ap.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+    }
 
     return { msg: "Player AP updated" };
   } catch (error) {
@@ -226,7 +224,6 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
   try {
     const session = await getServerSession(authOptions);
     const charactedData = await User.findOne({ "character.title": session.user.character.title });
-    // console.log(charactedData);
     const expiriencePoints = charactedData.character.xp;
     //if expirience loss drops exp below zero then exp=0 and level=1
     if (expiriencePoints + expirienceGain <= 0) {
@@ -249,7 +246,7 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
     const calculatedLevel = levelTable.findIndex((thisLevelExp, index) => {
       if (thisLevelExp > expiriencePoints + expirienceGain) return index;
     });
-    // if new level > old level
+    // if new level > old level (level up)
     // should add and reset hp
     // should add 10to every maxStat.
     if (calculatedLevel > calculatedOldLevel) {
@@ -259,6 +256,57 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
           $set: {
             "character.health.amount": charactedData.character.health.maxAmount + 10,
             "character.health.maxAmount": charactedData.character.health.maxAmount + 10,
+            "character.str.maxAmount": charactedData.character.str.maxAmount + 10,
+            "character.dex.maxAmount": charactedData.character.dex.maxAmount + 10,
+            "character.int.maxAmount": charactedData.character.int.maxAmount + 10,
+            "character.cha.maxAmount": charactedData.character.cha.maxAmount + 10,
+            "character.spd.maxAmount": charactedData.character.spd.maxAmount + 10,
+            "character.acc.maxAmount": charactedData.character.acc.maxAmount + 10,
+          },
+        }
+      );
+    }
+
+    // if new level < old level (level down)
+    // should subtract and reset hp
+    // should remove 10 from every maxStat.
+    if (calculatedLevel < calculatedOldLevel) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            "character.health.amount": charactedData.character.health.maxAmount - 10,
+            "character.health.maxAmount": charactedData.character.health.maxAmount - 10,
+            "character.str.maxAmount": charactedData.character.str.maxAmount - 10,
+            "character.dex.maxAmount": charactedData.character.dex.maxAmount - 10,
+            "character.int.maxAmount": charactedData.character.int.maxAmount - 10,
+            "character.cha.maxAmount": charactedData.character.cha.maxAmount - 10,
+            "character.spd.maxAmount": charactedData.character.spd.maxAmount - 10,
+            "character.acc.maxAmount": charactedData.character.acc.maxAmount - 10,
+            "character.str.amount":
+              charactedData.character.str.amount > charactedData.character.str.maxAmount - 10
+                ? charactedData.character.str.maxAmount - 10
+                : charactedData.character.str.amount,
+            "character.dex.amount":
+              charactedData.character.dex.amount > charactedData.character.dex.maxAmount - 10
+                ? charactedData.character.dex.maxAmount - 10
+                : charactedData.character.dex.amount,
+            "character.int.amount":
+              charactedData.character.int.amount > charactedData.character.int.maxAmount - 10
+                ? charactedData.character.int.maxAmount - 10
+                : charactedData.character.int.amount,
+            "character.cha.amount":
+              charactedData.character.cha.amount > charactedData.character.cha.maxAmount - 10
+                ? charactedData.character.cha.maxAmount - 10
+                : charactedData.character.cha.amount,
+            "character.spd.amount":
+              charactedData.character.spd.amount > charactedData.character.spd.maxAmount - 10
+                ? charactedData.character.spd.maxAmount - 10
+                : charactedData.character.spd.amount,
+            "character.acc.amount":
+              charactedData.character.acc.amount > charactedData.character.acc.maxAmount - 10
+                ? charactedData.character.acc.maxAmount - 10
+                : charactedData.character.acc.amount,
           },
         }
       );
@@ -269,6 +317,38 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
         $set: {
           "character.xp": expiriencePoints + expirienceGain,
           "character.level": calculatedLevel,
+        },
+      }
+    );
+
+    return { msg: "Player XP and Level updated" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+
+export async function updateStats({ statsToUpdate, pointsGain = 1 }) {
+  try {
+    const session = await getServerSession(authOptions);
+    const charactedData = await User.findOne({ "character.title": session.user.character.title });
+    console.log(session);
+
+    if (charactedData.character.dex.amount + pointsGain > charactedData.character.dex.maxAmount) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            [`character.${statsToUpdate}.amount`]: session.user.character.dex.maxAmount,
+          },
+        }
+      );
+      return;
+    }
+    const newAmount = await User.updateOne(
+      { _id: session?.user?._id },
+      {
+        $set: {
+          [`character.${statsToUpdate}.amount`]: session.user.character.dex.amount + pointsGain,
         },
       }
     );

@@ -5,6 +5,7 @@ import {
   healthPointsNaturalRegeneration,
   updateHealthPoints,
   updateActionPoints,
+  updateStats,
 } from "@/actions/playerActions";
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,24 @@ const ActionPointsUpdate = () => {
     <div className="flex flex-col gap-5">
       <button
         onClick={() => {
-          updateActionPoints({ valueToRecover: -5 });
+          updateStats({ statsToUpdate: "dex", pointsGain: -5 });
+          router.refresh();
+        }}
+      >
+        Lose 5 DEX
+      </button>
+      <button
+        onClick={() => {
+          updateStats({ statsToUpdate: "dex", pointsGain: 5 });
+          router.refresh();
+        }}
+      >
+        Gain 5 DEX
+      </button>
+      <button
+        onClick={async () => {
+          const res = await updateActionPoints({ valueToRecover: -7 });
+          if (res?.msg) alert(res?.msg);
           router.refresh();
         }}
       >
