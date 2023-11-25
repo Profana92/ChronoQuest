@@ -3,18 +3,21 @@ import { Schema, model, models } from "mongoose";
 const itemsSchema = new Schema({
   name: { type: String, required: true },
   category: { itemType: String, itemCategory: String },
-  rarity: String,
+  rarity: Number,
   origin: String,
-  armor: Number,
-  attack: { from: Number, to: Number },
-  level: Number,
-  str: { amount: Number, maxAmount: Number },
-  dex: { amount: Number, maxAmount: Number },
-  int: { amount: Number, maxAmount: Number },
-  cha: { amount: Number, maxAmount: Number },
-  spd: { amount: Number, maxAmount: Number },
-  acc: { amount: Number, maxAmount: Number },
+  itemLevel: Number,
+  stats: {
+    str: Number,
+    dex: Number,
+    int: Number,
+    cha: Number,
+    spd: Number,
+    acc: Number,
+    armor: Number,
+    attack: { from: Number, to: Number },
+  },
   basisValue: Number,
+  image: String,
 });
 
 const Item = models.item || model("item", itemsSchema);

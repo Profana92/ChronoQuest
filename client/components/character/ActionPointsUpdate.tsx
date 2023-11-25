@@ -6,6 +6,8 @@ import {
   updateHealthPoints,
   updateActionPoints,
   updateStats,
+  generateItem,
+  adminGenerateNewBasisItem,
 } from "@/actions/playerActions";
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
@@ -18,6 +20,33 @@ const ActionPointsUpdate = () => {
   });
   return (
     <div className="flex flex-col gap-5">
+      <button
+        onClick={async () => {
+          const createdItem = await adminGenerateNewBasisItem({
+            name: "Short Sword",
+            category: { itemType: "sword", itemCategory: "weapon" },
+            rarity: 4,
+            origin: "Shop",
+            itemLevel: 5,
+            stats: { str: 1, dex: 4, int: 5, cha: 6, spd: 1, acc: 2, armor: 55, attack: { from: 7, to: 9 } },
+            basisValue: 5,
+            image: "https://opengameart.org/sites/default/files/axe2.png",
+          });
+
+          router.refresh();
+        }}
+      >
+        ADMIN - Create new item
+      </button>
+      <button
+        onClick={async () => {
+          const generatedItem = await generateItem({ itemBasis: "Short Sword" });
+          console.log(generatedItem);
+          router.refresh();
+        }}
+      >
+        Generate item
+      </button>
       <button
         onClick={() => {
           updateStats({ statsToUpdate: "dex", pointsGain: -5 });

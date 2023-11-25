@@ -327,7 +327,7 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
   }
 }
 
-export async function updateStats({ statsToUpdate, pointsGain = 1 }) {
+export async function updateStats({ statsToUpdate, pointsGain = 1 }: { statsToUpdate: string; pointsGain: number }) {
   try {
     const session = await getServerSession(authOptions);
     const charactedData = await User.findOne({ "character.title": session.user.character.title });
@@ -354,6 +354,88 @@ export async function updateStats({ statsToUpdate, pointsGain = 1 }) {
     );
 
     return { msg: "Player XP and Level updated" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+
+export async function adminGenerateNewBasisItem({
+  name,
+  category,
+  rarity,
+  origin,
+  itemLevel,
+  stats,
+  basisValue,
+  image,
+}: {
+  name: string;
+  category: { itemType: string; itemCategory: string };
+  rarity: number;
+  origin: string;
+  itemLevel: number;
+  stats: {
+    str: number;
+    dex: number;
+    int: number;
+    cha: number;
+    spd: number;
+    acc: number;
+    armor: number;
+    attack: { from: number; to: number };
+  };
+  basisValue: number;
+  image: string;
+}) {
+  try {
+    const item = new Item({
+      name: name,
+      category: { itemType: category.itemType, itemCategory: category.itemCategory },
+      rarity: rarity,
+      origin: origin,
+      itemLevel: itemLevel,
+      stats: {
+        str: stats.str,
+        dex: stats.dex,
+        int: stats.int,
+        cha: stats.cha,
+        spd: stats.spd,
+        acc: stats.acc,
+        armor: stats.armor,
+        attack: { from: stats.attack.from, to: stats.attack.to },
+      },
+      basisValue: basisValue,
+      image: image,
+    });
+    item.save();
+    return { msg: "Item successfully created" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+
+export async function generateItem({ itemBasis }: { itemBasis: string }) {
+  try {
+    // const session = await getServerSession(authOptions);
+
+    const basisItemDAta = await Item.findOne({ name: itemBasis });
+    const rarityFactors = [0, 1.5, 2, 2.5, 3];
+    const rarityProbability = [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
+      4,
+    ];
+    //determine new item rarity
+    const itemRarity = rarityProbability[Math.floor(Math.random() * rarityProbability.length)];
+
+    console.log(basisItemDAta);
+    console.log(rarityProbability.length);
+    console.log("0 rarity", 20 / rarityProbability.length);
+    console.log("1 rarity", 12 / rarityProbability.length);
+    console.log("2 rarity", 4 / rarityProbability.length);
+    console.log("3 rarity", 2 / rarityProbability.length);
+    console.log("4 rarity", 1 / rarityProbability.length);
+
+    return { msg: "Item successfully generated" };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);
   }
