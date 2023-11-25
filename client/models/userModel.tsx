@@ -1,5 +1,17 @@
 import { Schema, model, models } from "mongoose";
 
+const messageSchema = new Schema({
+  sender: {
+    type: String,
+    required: true,
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  attachment: Object,
+});
+
 const userSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -24,10 +36,12 @@ const userSchema = new Schema(
       ap: { amount: Number, maxAmount: Number, lastUpdatedAt: Date },
       sex: String,
       gold: Number,
+      inbox: [messageSchema],
     },
   },
   { timestamps: true }
 );
 
 const User = models.user || model("user", userSchema);
+export const Message = models.message || model("message", messageSchema);
 export default User;

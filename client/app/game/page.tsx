@@ -5,15 +5,16 @@ import { getServerSession } from "next-auth/next";
 import NewCharacter from "@/components/character/NewCharacter";
 import CharacterInfo from "@/components/character/CharacterInfo";
 import ActionPointsUpdate from "@/components/character/ActionPointsUpdate";
-const ProtectedServerPage = async () => {
+
+const Game = async () => {
   const session = await getServerSession(authOptions);
+
   const characterExists = async () => {
-    const characterData = await User.findOne({ _id: session.user._id });
-    if (characterData.character.title) {
+    const characterData = await User.findOne({ _id: session?.user?._id });
+    if (characterData?.character?.title) {
       return characterData.character;
     } else return null;
   };
-
   const characterData = await characterExists();
   // const actionPoints = await updateActionPoints();
 
@@ -25,4 +26,4 @@ const ProtectedServerPage = async () => {
   );
 };
 
-export default ProtectedServerPage;
+export default Game;

@@ -1,10 +1,10 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import User from "@/models/userModel";
+import User, { Message } from "@/models/userModel";
 import { redirect } from "next/navigation";
 import Item from "@/models/itemModel";
-
+import { Types } from "mongoose";
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
   98800, 116000, 135100, 156200, 179400, 204800, 232500, 262600, 295200, 330400, 368300, 409000, 452600, 499200, 548900,
@@ -38,6 +38,7 @@ export async function addNewCharacter({ name, sex }: { name: string; sex: string
         ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
         sex: sex,
         gold: 10,
+        inbox: [],
       },
     });
     return { msg: "Player sucessfully created" };
@@ -184,7 +185,6 @@ export async function updateActionPoints({ valueToRecover = 0 }) {
 
     //make sure that ap never falls below 0
     if (amount + valueToRecover < 0) {
-      console.log(valueToRecover);
       return { msg: "You have no AP left" };
     }
     // if current ap amount + valueToRecover >=maxAmount set ap to maxAmount, update last update date and do nothing.
@@ -331,8 +331,17 @@ export async function updateStats({ statsToUpdate, pointsGain = 1 }: { statsToUp
   try {
     const session = await getServerSession(authOptions);
     const charactedData = await User.findOne({ "character.title": session.user.character.title });
-    console.log(session);
-
+    if (charactedData.character.dex.amount + pointsGain < 1) {
+      const newAmount = await User.updateOne(
+        { _id: session?.user?._id },
+        {
+          $set: {
+            [`character.${statsToUpdate}.amount`]: 1,
+          },
+        }
+      );
+      return;
+    }
     if (charactedData.character.dex.amount + pointsGain > charactedData.character.dex.maxAmount) {
       const newAmount = await User.updateOne(
         { _id: session?.user?._id },
@@ -344,6 +353,7 @@ export async function updateStats({ statsToUpdate, pointsGain = 1 }: { statsToUp
       );
       return;
     }
+
     const newAmount = await User.updateOne(
       { _id: session?.user?._id },
       {
@@ -359,8 +369,8 @@ export async function updateStats({ statsToUpdate, pointsGain = 1 }: { statsToUp
   }
 }
 
-export async function adminGenerateNewBasisItem({
-  name,
+export async function adminAddNewBasisItem({
+  itemName,
   category,
   rarity,
   origin,
@@ -369,7 +379,7 @@ export async function adminGenerateNewBasisItem({
   basisValue,
   image,
 }: {
-  name: string;
+  itemName: string;
   category: { itemType: string; itemCategory: string };
   rarity: number;
   origin: string;
@@ -388,8 +398,9 @@ export async function adminGenerateNewBasisItem({
   image: string;
 }) {
   try {
+    if (await Item.findOne({ itemName: itemName })) throw new Error("Item already exists");
     const item = new Item({
-      name: name,
+      itemName: itemName,
       category: { itemType: category.itemType, itemCategory: category.itemCategory },
       rarity: rarity,
       origin: origin,
@@ -414,28 +425,108 @@ export async function adminGenerateNewBasisItem({
   }
 }
 
+export async function adminRemoveBasisItem({ itemName }: { itemName: string }) {
+  try {
+    if (!(await Item.findOne({ itemName: itemName }))) throw new Error("Item does not exists");
+    const deletedItem = await Item.deleteOne({ itemName: itemName });
+    return { msg: "Item successfully deleted" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+
 export async function generateItem({ itemBasis }: { itemBasis: string }) {
   try {
     // const session = await getServerSession(authOptions);
 
-    const basisItemDAta = await Item.findOne({ name: itemBasis });
-    const rarityFactors = [0, 1.5, 2, 2.5, 3];
+    const basisItemData = await Item.findOne({ itemName: itemBasis });
+    const rarityFactors = [1, 1.5, 2, 2.5, 3];
     const rarityProbability = [
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
       4,
     ];
+
     //determine new item rarity
     const itemRarity = rarityProbability[Math.floor(Math.random() * rarityProbability.length)];
+    //determine new item stats
+    const newItem = {
+      itemName: basisItemData.itemName,
+      category: {
+        itemType: basisItemData.category.itemType,
+        itemCategory: basisItemData.category.itemCategory,
+      },
+      rarity: 0,
+      origin: basisItemData.origin,
+      itemLevel: basisItemData.itemLevel,
+      basisValue: Math.floor(basisItemData.basisValue * rarityFactors[itemRarity]),
+      image: basisItemData.image,
+      stats: {
+        attack: {
+          from: Math.floor(basisItemData.stats.attack.from * rarityFactors[itemRarity]),
+          to: Math.floor(basisItemData.stats.attack.to * rarityFactors[itemRarity]),
+        },
+        str: Math.floor(basisItemData.stats.str * rarityFactors[itemRarity]),
+        dex: Math.floor(basisItemData.stats.dex * rarityFactors[itemRarity]),
+        int: Math.floor(basisItemData.stats.int * rarityFactors[itemRarity]),
+        cha: Math.floor(basisItemData.stats.cha * rarityFactors[itemRarity]),
+        spd: Math.floor(basisItemData.stats.spd * rarityFactors[itemRarity]),
+        acc: Math.floor(basisItemData.stats.acc * rarityFactors[itemRarity]),
+        armor: Math.floor(basisItemData.stats.armor * rarityFactors[itemRarity]),
+      },
+    };
 
-    console.log(basisItemDAta);
-    console.log(rarityProbability.length);
-    console.log("0 rarity", 20 / rarityProbability.length);
-    console.log("1 rarity", 12 / rarityProbability.length);
-    console.log("2 rarity", 4 / rarityProbability.length);
-    console.log("3 rarity", 2 / rarityProbability.length);
-    console.log("4 rarity", 1 / rarityProbability.length);
+    return { msg: "Item successfully generated", generatedItem: newItem };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
 
-    return { msg: "Item successfully generated" };
+export async function addMessageToInbox({
+  message,
+  recipient,
+  itemBasis,
+  sender,
+}: {
+  message: string;
+  recipient: string;
+  itemBasis: string | null;
+  sender: string;
+}) {
+  try {
+    if (itemBasis !== null) {
+      const attachment = generateItem({ itemBasis: itemBasis });
+      const completeMessage = { message: message, attachment: attachment, sender: sender };
+      const inboxUpdate = await User.findOneAndUpdate(
+        { "character.title": recipient },
+        { $push: { "character.inbox": completeMessage } }
+      );
+    } else {
+      const completeMessage = { message: message, attachment: null, sender: sender };
+      const inboxUpdate = await User.findOneAndUpdate(
+        { "character.title": recipient },
+        { $push: { "character.inbox": completeMessage } }
+      );
+    }
+    return { msg: "Message sent successfully" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
+export async function removeMessageFromInbox({
+  characterName,
+  idToDelete,
+}: {
+  characterName: string;
+  idToDelete: Types.ObjectId;
+}) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    const deleteItem = await User.updateOne(
+      { "character.title": characterName },
+      { $pull: { "character.inbox": { _id: idToDelete } } }
+    );
+    return { msg: "Message deleted successfully" };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);
   }
