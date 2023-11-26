@@ -10,11 +10,10 @@ import { fetchUserData } from "@/actions/playerActions";
 const Game = async () => {
   const session = await getServerSession(authOptions);
   const characterData = await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player });
-  console.log("🚀 ~ file: page.tsx:14 ~ Game ~ characterData:", characterData);
 
   return (
     <section className="pt-14">
-      {/* <ActionPointsUpdate /> */}
+      <ActionPointsUpdate player={session?.user?.player} />
       {/* {characterData?.player ? <CharacterInfo /> : <NewCharacter />} */}
       {characterData?.playerData ? <h1>player exists</h1> : <NewCharacter />}
     </section>

@@ -28,83 +28,83 @@ export async function fetchUserData({ id, playerName }: { id: string; playerName
 }
 export async function addNewCharacter({ name, sex }: { name: string; sex: string }) {
   try {
-    // const duplicate = await Player.findOne({ title: name });
-    // console.log(duplicate);
-    // if (duplicate) throw new Error("Character name already taken, please try again.");
+    const duplicate = await Player.findOne({ title: name });
+    if (duplicate) throw new Error("Character name already taken, please try again.");
     const session = await getServerSession(authOptions);
-    console.log("this is a session from function", session?.user?._id);
-    const userData = await User.findOne({ _id: session?.user?._id });
-
-    const player = await Player.findByIdAndUpdate(session?.user?._id, {
-      character: {
-        armor: 0,
-        title: name,
-        health: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
-        companion: { companionName: "none", companionType: "none", xp: 0, level: 1 },
-        level: 1,
-        xp: 0,
-        str: { amount: 5, maxAmount: 10 },
-        dex: { amount: 5, maxAmount: 10 },
-        int: { amount: 5, maxAmount: 10 },
-        cha: { amount: 5, maxAmount: 10 },
-        spd: { amount: 5, maxAmount: 10 },
-        acc: { amount: 5, maxAmount: 10 },
-        ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
-        sex: sex,
-        gold: 10,
-        inbox: [],
-      },
+    await User.findOne({ _id: session?.user?._id });
+    await User.findByIdAndUpdate(session?.user?._id, {
+      player: name,
     });
+    const playerInPlayers = new Player({
+      armor: 0,
+      title: name,
+      health: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
+      companion: { companionName: "none", companionType: "none", xp: 0, level: 1 },
+      level: 1,
+      xp: 0,
+      str: { amount: 5, maxAmount: 10 },
+      dex: { amount: 5, maxAmount: 10 },
+      int: { amount: 5, maxAmount: 10 },
+      cha: { amount: 5, maxAmount: 10 },
+      spd: { amount: 5, maxAmount: 10 },
+      acc: { amount: 5, maxAmount: 10 },
+      ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
+      sex: sex,
+      gold: 10,
+      inbox: [],
+    });
+    playerInPlayers.save();
     return { msg: "Player sucessfully created" };
   } catch (error) {
     redirect(`/errors?error=${error?.message}`);
   }
 }
 
-// export async function actionPointsNaturalRegeneration({ intervalPerPoint = 60000 }) {
-//   try {
-//     const session = await getServerSession(authOptions);
+export async function actionPointsNaturalRegeneration({ player, intervalPerPoint = 60000 }) {
+  try {
+    const { amount, maxAmount, lastUpdatedAt } = (await Player.findOne({ title: player })).ap;
 
-//     const { amount, lastUpdatedAt } = (await User.findOne({ "character.title": session.user.character.title }))
-//       .character.ap;
-//     //if current ap amount >=100 do nothing
-//     if (amount >= 100) {
-//       const newAmount = await User.updateOne(
-//         { _id: session?.user?._id },
-//         {
-//           $set: {
-//             "character.ap.amount": 100,
-//             "character.ap.lastUpdatedAt": new Date(),
-//           },
-//         }
-//       );
-//       return;
-//     }
+    // if current ap amount >=maxAmount update time
+    if (amount >= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "ap.amount": maxAmount,
+            "ap.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      return;
+    }
 
-//     //calculate time difference from last update
-//     const timeDifference = +new Date() - lastUpdatedAt;
-//     //calculate action points to add
-//     const pointsToAdd = timeDifference / intervalPerPoint;
-//     //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
-//     const pointsToUpdate = amount + pointsToAdd > 100 ? 100 : Math.round(amount + pointsToAdd);
+    //calculate time difference from last update
+    const timeDifference = +new Date() - lastUpdatedAt;
+    //calculate action points to add
+    const pointsToAdd = timeDifference / intervalPerPoint;
 
-//     if (timeDifference >= intervalPerPoint && amount <= 100) {
-//       const newAmount = await User.updateOne(
-//         { _id: session?.user?._id },
-//         {
-//           $set: {
-//             "character.ap.amount": pointsToUpdate,
-//             "character.ap.lastUpdatedAt": new Date(),
-//           },
-//         }
-//       );
-//     }
+    //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
+    const pointsToUpdate = amount + pointsToAdd >= maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
 
-//     return { msg: "Player AP updated" };
-//   } catch (error) {
-//     redirect(`/errors?error=${error?.message}`);
-//   }
-// }
+    console.log("🚀 ~ file: playerActions.tsx:89 ~ actionPointsNaturalRegeneration ~ pointsToUpdate:", pointsToUpdate);
+    if (timeDifference >= intervalPerPoint && amount <= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "ap.amount": pointsToUpdate,
+            "ap.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      console.log("🚀 ~ file: playerActions.tsx:100 ~ actionPointsNaturalRegeneration ~ newAmount:", newAmount);
+    }
+
+    return { msg: "Player AP updated" };
+  } catch (error) {
+    redirect(`/errors?error=${error?.message}`);
+  }
+}
 
 // export async function healthPointsNaturalRegeneration({ intervalPerPoint = 60000 }) {
 //   try {

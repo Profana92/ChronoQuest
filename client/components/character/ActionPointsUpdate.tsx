@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import {
   actionPointsNaturalRegeneration,
   healthPointsNaturalRegeneration,
@@ -15,28 +14,31 @@ import {
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+
 import { useState } from "react";
+import { useEffect } from "react";
 import User from "@/models/userModel";
-const ActionPointsUpdate = () => {
+const ActionPointsUpdate = ({ player }) => {
   // const { data: session, status, update } = useSession();
+
   const router = useRouter();
   const intervalPerPoint = 60000;
   const [fetchedDataStates, setfetchedDataStates] = useState(null);
   useEffect(() => {
-    healthPointsNaturalRegeneration({ intervalPerPoint });
-    actionPointsNaturalRegeneration({ intervalPerPoint });
+    // healthPointsNaturalRegeneration({ intervalPerPoint });
+    actionPointsNaturalRegeneration({ player, intervalPerPoint });
   });
   // useEffect(() => {
   //   fetchData();
   // }, []);
 
-  const fetchData = async () => {
-    let res = await fetch("/api/player");
-    res = await res.json();
-    console.log(res?.character?.inbox);
-    setfetchedDataStates(res);
-  };
-  if (fetchedDataStates?.character?.inbox) console.log(true);
+  // const fetchData = async () => {
+  //   let res = await fetch("/api/player");
+  //   res = await res.json();
+  //   console.log(res?.character?.inbox);
+  //   setfetchedDataStates(res);
+  // };
+  // if (fetchedDataStates?.character?.inbox) console.log(true);
   return (
     <div className="flex flex-col gap-5">
       {/* {fetchedDataStates?.character?.inbox &&
@@ -44,7 +46,7 @@ const ActionPointsUpdate = () => {
           return <h1 key={index}>{item._id}</h1>;
         })} */}
       {/* <button onClick={fetchData}>FETCH</button> */}
-      <button
+      {/* <button
         onClick={async () => {
           const addedMessage = await addMessageToInbox({
             message: "THIS WORKS",
@@ -157,7 +159,7 @@ const ActionPointsUpdate = () => {
         }}
       >
         Lose 100 XP
-      </button>
+      </button> */}
     </div>
   );
 };
