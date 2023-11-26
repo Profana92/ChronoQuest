@@ -9,7 +9,7 @@ const ProtectedServerPage = async () => {
   return (
     <div>
       <h1>this is a Server Side Protected Page</h1>
-      <ProtectedComponent user={session?.user} />
+      {/* <ProtectedComponent user={session?.user} /> */}
     </div>
   );
 };
