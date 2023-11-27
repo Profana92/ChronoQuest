@@ -1,8 +1,11 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import User from "@/models/userModel";
+import User, { Message } from "@/models/userModel";
 import { redirect } from "next/navigation";
+import Item from "@/models/itemModel";
+import { Types } from "mongoose";
+import Player from "@/models/playerModel";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -15,50 +18,71 @@ const levelTable = [
   15219400, 15694800,
 ];
 
-export async function addNewCharacter({ name, sex }) {
+export async function fetchUserData({ id, playerName }: { id: string; playerName: string }) {
   try {
-    const duplicate = await User.findOne({ "character.title": name });
+    const userData = await User.findOne({ _id: id });
+    const playerData = await Player.findOne({ title: playerName });
+    return { msg: "Player sucessfully fetched", userData, playerData };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+export async function addNewCharacter({ name, sex }: { name: string; sex: string }) {
+  try {
+    const duplicate = await Player.findOne({ title: name });
     if (duplicate) throw new Error("Character name already taken, please try again.");
     const session = await getServerSession(authOptions);
-    const user = await User.findByIdAndUpdate(session?.user?._id, {
-      character: {
-        armor: 0,
-        title: name,
-        health: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
-        companion: { companionName: "none", companionType: "none", xp: 0, level: 1 },
-        level: 1,
-        xp: 0,
-        str: { amount: 5, maxAmount: 10 },
-        dex: { amount: 5, maxAmount: 10 },
-        int: { amount: 5, maxAmount: 10 },
-        cha: { amount: 5, maxAmount: 10 },
-        spd: { amount: 5, maxAmount: 10 },
-        acc: { amount: 5, maxAmount: 10 },
-        ap: { amount: 100, lastUpdatedAt: Date.now() },
-        sex: sex,
-        gold: 10,
-      },
+    await User.findOne({ _id: session?.user?._id });
+    await User.findByIdAndUpdate(session?.user?._id, {
+      player: name,
     });
+    const playerInPlayers = new Player({
+      armor: 0,
+      title: name,
+      health: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
+      companion: { companionName: "none", companionType: "none", xp: 0, level: 1 },
+      level: 1,
+      xp: 0,
+      str: { amount: 5, maxAmount: 10 },
+      dex: { amount: 5, maxAmount: 10 },
+      int: { amount: 5, maxAmount: 10 },
+      cha: { amount: 5, maxAmount: 10 },
+      spd: { amount: 5, maxAmount: 10 },
+      acc: { amount: 5, maxAmount: 10 },
+      ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
+      sex: sex,
+      gold: 10,
+      inbox: [],
+    });
+    playerInPlayers.save();
     return { msg: "Player sucessfully created" };
   } catch (error) {
-    redirect(`/errors?error=${error?.message}`);
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
   }
 }
 
-export async function updateActionPoints({ intervalPerPoint = 60000 }) {
+export async function actionPointsNaturalRegeneration({
+  player,
+  intervalPerPoint = 60000,
+}: {
+  player: string;
+  intervalPerPoint: number;
+}) {
   try {
-    const session = await getServerSession(authOptions);
+    const { amount, maxAmount, lastUpdatedAt } = (await Player.findOne({ title: player })).ap;
 
-    const { amount, lastUpdatedAt } = (await User.findOne({ "character.title": session.user.character.title }))
-      .character.ap;
-    //if current ap amount >=100 do nothing
-    if (amount >= 100) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+    // if current ap amount >=maxAmount update time
+    if (amount >= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.ap.amount": 100,
-            "character.ap.lastUpdatedAt": new Date(),
+            "ap.amount": maxAmount,
+            "ap.lastUpdatedAt": new Date(),
           },
         }
       );
@@ -70,15 +94,15 @@ export async function updateActionPoints({ intervalPerPoint = 60000 }) {
     //calculate action points to add
     const pointsToAdd = timeDifference / intervalPerPoint;
     //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
-    const pointsToUpdate = amount + pointsToAdd > 100 ? 100 : Math.round(amount + pointsToAdd);
+    const pointsToUpdate = amount + pointsToAdd >= maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
 
-    if (timeDifference >= intervalPerPoint && amount <= 100) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+    if (timeDifference >= intervalPerPoint && amount <= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.ap.amount": pointsToUpdate,
-            "character.ap.lastUpdatedAt": new Date(),
+            "ap.amount": pointsToUpdate,
+            "ap.lastUpdatedAt": new Date(),
           },
         }
       );
@@ -86,24 +110,40 @@ export async function updateActionPoints({ intervalPerPoint = 60000 }) {
 
     return { msg: "Player AP updated" };
   } catch (error) {
-    redirect(`/errors?error=${error?.message}`);
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
   }
 }
 
-export async function updateHealthPoints({ intervalPerPoint = 60000, valueToRecover = 0 }) {
+export async function healthPointsNaturalRegeneration({
+  player,
+  intervalPerPoint = 60000,
+}: {
+  player: string;
+  intervalPerPoint: number;
+}) {
   try {
-    const session = await getServerSession(authOptions);
-    const { amount, maxAmount, lastUpdatedAt } = (
-      await User.findOne({ "character.title": session.user.character.title })
-    ).character.health;
-
-    if (amount + valueToRecover < 0) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+    const { amount, maxAmount, lastUpdatedAt } = (await Player.findOne({ title: player })).health;
+    //make sure it is never lower than 0
+    if (amount < 0) {
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.health.amount": 0,
-            "character.health.lastUpdatedAt": new Date(),
+            "health.amount": 0,
+            "health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+    }
+    if (amount > maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "health.amount": maxAmount,
+            "health.lastUpdatedAt": new Date(),
           },
         }
       );
@@ -113,17 +153,17 @@ export async function updateHealthPoints({ intervalPerPoint = 60000, valueToReco
     //calculate time difference from last update
     const timeDifference = +new Date() - lastUpdatedAt;
     //calculate action points to add
-    const pointsToAdd = timeDifference / intervalPerPoint + valueToRecover;
-    //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
+    const pointsToAdd = timeDifference / intervalPerPoint;
+    //calculate pointstoUpdate, if amount + points>100, then return maxAmount, if not return actual value.
     const pointsToUpdate = amount + pointsToAdd > maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
-
-    if (amount <= maxAmount) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+    //update db
+    if (amount + pointsToAdd <= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.health.amount": pointsToUpdate,
-            "character.health.lastUpdatedAt": new Date(),
+            "health.amount": pointsToUpdate,
+            "health.lastUpdatedAt": new Date(),
           },
         }
       );
@@ -131,24 +171,106 @@ export async function updateHealthPoints({ intervalPerPoint = 60000, valueToReco
 
     return { msg: "Player Health updated" };
   } catch (error) {
-    redirect(`/errors?error=${error?.message}`);
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
   }
 }
 
-export async function updateXpAndLevel({ expirienceGain = 0 }) {
+export async function updateHealthPoints({ player, valueToRecover = 0 }: { player: string; valueToRecover: number }) {
   try {
-    const session = await getServerSession(authOptions);
-    const charactedData = await User.findOne({ "character.title": session.user.character.title });
-    // console.log(charactedData);
-    const expiriencePoints = charactedData.character.xp;
-    //if expirience loss drops exp below zero then exp=0 and level=1
-    if (expiriencePoints + expirienceGain <= 0) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+    const { amount, maxAmount } = (await Player.findOne({ title: player })).health;
+
+    //Prevent AP from falling belove 0
+    if (amount + valueToRecover < 0) {
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.xp": 0,
-            "character.level": 1,
+            "health.amount": 0,
+            "health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      return;
+    }
+
+    //if current AP + valueToRecover is even or lesser than maxAmount, set that amount to maxAmount
+    if (amount + valueToRecover <= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "health.amount": amount + valueToRecover,
+            "health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+    }
+
+    return { msg: `Player Health updated by : ${valueToRecover}` };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function updateActionPoints({ player, valueToRecover = 0 }: { player: string; valueToRecover: number }) {
+  try {
+    const { amount, maxAmount } = (await Player.findOne({ title: player })).ap;
+
+    //make sure that ap never falls below 0
+    if (amount + valueToRecover < 0) {
+      return { msg: "You have no AP left" };
+    }
+    // if current ap amount + valueToRecover >=maxAmount set ap to maxAmount, update last update date and do nothing.
+
+    if (amount + valueToRecover >= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "ap.amount": maxAmount,
+            lastUpdatedAt: new Date(),
+          },
+        }
+      );
+      return;
+    }
+    //update value
+    if (amount + valueToRecover <= maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "ap.amount": amount + valueToRecover,
+            "ap.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+    }
+
+    return { msg: "Player AP updated" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function updateXpAndLevel({ player, expirienceGain = 0 }: { player: string; expirienceGain: number }) {
+  try {
+    const charactedData = await Player.findOne({ title: player });
+    const expiriencePoints = charactedData.xp;
+    //if expirience loss drops exp below zero then exp=0 and level=1
+    if (expiriencePoints + expirienceGain <= 0) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            xp: 0,
+            level: 1,
           },
         }
       );
@@ -162,32 +284,306 @@ export async function updateXpAndLevel({ expirienceGain = 0 }) {
     const calculatedLevel = levelTable.findIndex((thisLevelExp, index) => {
       if (thisLevelExp > expiriencePoints + expirienceGain) return index;
     });
-    // if new level > old level
+    // if new level > old level (level up)
     // should add and reset hp
     // should add 10to every maxStat.
     if (calculatedLevel > calculatedOldLevel) {
-      const newAmount = await User.updateOne(
-        { _id: session?.user?._id },
+      const newAmount = await Player.updateOne(
+        { title: player },
         {
           $set: {
-            "character.health.amount": charactedData.character.health.maxAmount + 10,
-            "character.health.maxAmount": charactedData.character.health.maxAmount + 10,
+            "health.amount": charactedData.health.maxAmount + 10,
+            "health.maxAmount": charactedData.health.maxAmount + 10,
+            "str.maxAmount": charactedData.str.maxAmount + 10,
+            "dex.maxAmount": charactedData.dex.maxAmount + 10,
+            "int.maxAmount": charactedData.int.maxAmount + 10,
+            "cha.maxAmount": charactedData.cha.maxAmount + 10,
+            "spd.maxAmount": charactedData.spd.maxAmount + 10,
+            "acc.maxAmount": charactedData.acc.maxAmount + 10,
           },
         }
       );
     }
-    const newAmount = await User.updateOne(
-      { _id: session?.user?._id },
+
+    // if new level < old level (level down)
+    // should subtract and reset hp
+    // should remove 10 from every maxStat.
+    if (calculatedLevel < calculatedOldLevel) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "health.amount": charactedData.health.maxAmount - 10,
+            "health.maxAmount": charactedData.health.maxAmount - 10,
+            "str.maxAmount": charactedData.str.maxAmount - 10,
+            "dex.maxAmount": charactedData.dex.maxAmount - 10,
+            "int.maxAmount": charactedData.int.maxAmount - 10,
+            "cha.maxAmount": charactedData.cha.maxAmount - 10,
+            "spd.maxAmount": charactedData.spd.maxAmount - 10,
+            "acc.maxAmount": charactedData.acc.maxAmount - 10,
+            "str.amount":
+              charactedData.str.amount > charactedData.str.maxAmount - 10
+                ? charactedData.str.maxAmount - 10
+                : charactedData.str.amount,
+            "dex.amount":
+              charactedData.dex.amount > charactedData.dex.maxAmount - 10
+                ? charactedData.dex.maxAmount - 10
+                : charactedData.dex.amount,
+            "character.int.amount":
+              charactedData.int.amount > charactedData.int.maxAmount - 10
+                ? charactedData.int.maxAmount - 10
+                : charactedData.int.amount,
+            "character.cha.amount":
+              charactedData.cha.amount > charactedData.cha.maxAmount - 10
+                ? charactedData.cha.maxAmount - 10
+                : charactedData.cha.amount,
+            "character.spd.amount":
+              charactedData.spd.amount > charactedData.spd.maxAmount - 10
+                ? charactedData.spd.maxAmount - 10
+                : charactedData.spd.amount,
+            "character.acc.amount":
+              charactedData.acc.amount > charactedData.acc.maxAmount - 10
+                ? charactedData.acc.maxAmount - 10
+                : charactedData.acc.amount,
+          },
+        }
+      );
+    }
+    const newAmount = await Player.updateOne(
+      { title: player },
       {
         $set: {
-          "character.xp": expiriencePoints + expirienceGain,
-          "character.level": calculatedLevel,
+          xp: expiriencePoints + expirienceGain,
+          level: calculatedLevel,
         },
       }
     );
 
     return { msg: "Player XP and Level updated" };
   } catch (error) {
-    redirect(`/errors?error=${error?.message}`);
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
   }
 }
+
+export async function updateStats({
+  player,
+  statsToUpdate,
+  pointsGain = 1,
+}: {
+  player: string;
+  statsToUpdate: string;
+  pointsGain: number;
+}) {
+  try {
+    const charactedData = await Player.findOne({ title: player });
+
+    console.log("🚀 ~ file: playerActions.tsx:383 ~ charactedData:", charactedData);
+    console.log("🚀 ~ file: playerActions.tsx:383 ~ charactedData[statsToUpdate]:", charactedData[statsToUpdate]);
+
+    if (charactedData[statsToUpdate].amount + pointsGain < 1) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            [`${statsToUpdate}.amount`]: 1,
+          },
+        }
+      );
+      return;
+    }
+    if (charactedData[statsToUpdate].amount + pointsGain > charactedData[statsToUpdate].maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].maxAmount,
+          },
+        }
+      );
+      return;
+    }
+
+    const newAmount = await Player.updateOne(
+      { title: player },
+      {
+        $set: {
+          [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].amount + pointsGain,
+        },
+      }
+    );
+
+    return { msg: "Player XP and Level updated" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function adminAddNewBasisItem({
+  itemName,
+  category,
+  rarity,
+  origin,
+  itemLevel,
+  stats,
+  basisValue,
+  image,
+}: {
+  itemName: string;
+  category: { itemType: string; itemCategory: string };
+  rarity: number;
+  origin: string;
+  itemLevel: number;
+  stats: {
+    str: number;
+    dex: number;
+    int: number;
+    cha: number;
+    spd: number;
+    acc: number;
+    armor: number;
+    attack: { from: number; to: number };
+  };
+  basisValue: number;
+  image: string;
+}) {
+  try {
+    if (await Item.findOne({ itemName: itemName })) throw new Error("Item already exists");
+    const item = new Item({
+      itemName: itemName,
+      category: { itemType: category.itemType, itemCategory: category.itemCategory },
+      rarity: rarity,
+      origin: origin,
+      itemLevel: itemLevel,
+      stats: {
+        str: stats.str,
+        dex: stats.dex,
+        int: stats.int,
+        cha: stats.cha,
+        spd: stats.spd,
+        acc: stats.acc,
+        armor: stats.armor,
+        attack: { from: stats.attack.from, to: stats.attack.to },
+      },
+      basisValue: basisValue,
+      image: image,
+    });
+    item.save();
+    return { msg: "Item successfully created" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function adminRemoveBasisItem({ itemName }: { itemName: string }) {
+  try {
+    if (!(await Item.findOne({ itemName: itemName }))) throw new Error("Item does not exists");
+    const deletedItem = await Item.deleteOne({ itemName: itemName });
+    return { msg: "Item successfully deleted" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function generateItem({ itemBasis }: { itemBasis: string }) {
+  try {
+    const basisItemData = await Item.findOne({ itemName: itemBasis });
+    const rarityFactors = [1, 1.5, 2, 2.5, 3];
+    const rarityProbability = [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
+      4,
+    ];
+
+    //determine new item rarity
+    const itemRarity = rarityProbability[Math.floor(Math.random() * rarityProbability.length)];
+    //determine new item stats
+    const newItem = {
+      itemName: basisItemData.itemName,
+      category: {
+        itemType: basisItemData.category.itemType,
+        itemCategory: basisItemData.category.itemCategory,
+      },
+      rarity: itemRarity,
+      origin: basisItemData.origin,
+      itemLevel: basisItemData.itemLevel,
+      basisValue: Math.floor(basisItemData.basisValue * rarityFactors[itemRarity]),
+      image: basisItemData.image,
+      stats: {
+        attack: {
+          from: Math.floor(basisItemData.stats.attack.from * rarityFactors[itemRarity]),
+          to: Math.floor(basisItemData.stats.attack.to * rarityFactors[itemRarity]),
+        },
+        str: Math.floor(basisItemData.stats.str * rarityFactors[itemRarity]),
+        dex: Math.floor(basisItemData.stats.dex * rarityFactors[itemRarity]),
+        int: Math.floor(basisItemData.stats.int * rarityFactors[itemRarity]),
+        cha: Math.floor(basisItemData.stats.cha * rarityFactors[itemRarity]),
+        spd: Math.floor(basisItemData.stats.spd * rarityFactors[itemRarity]),
+        acc: Math.floor(basisItemData.stats.acc * rarityFactors[itemRarity]),
+        armor: Math.floor(basisItemData.stats.armor * rarityFactors[itemRarity]),
+      },
+    };
+
+    return { msg: "Item successfully generated", generatedItem: newItem };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function addMessageToInbox({
+  message,
+  recipient,
+  itemBasis,
+  sender,
+}: {
+  message: string;
+  recipient: string;
+  itemBasis: string | null;
+  sender: string;
+}) {
+  try {
+    if (itemBasis !== null) {
+      const attachment = await generateItem({ itemBasis: itemBasis });
+      const completeMessage = { message: message, attachment: attachment?.generatedItem, sender: sender };
+      const inboxUpdate = await Player.findOneAndUpdate({ title: recipient }, { $push: { inbox: completeMessage } });
+    } else {
+      const completeMessage = { message: message, attachment: null, sender: sender };
+      const inboxUpdate = await Player.findOneAndUpdate({ title: recipient }, { $push: { inbox: completeMessage } });
+    }
+    return { msg: "Message sent successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function removeMessageFromInbox({
+  characterName,
+  idToDelete,
+}: {
+  characterName: string;
+  idToDelete: Types.ObjectId;
+}) {
+  try {
+    const deleteItem = await Player.updateOne({ title: characterName }, { $pull: { inbox: { _id: idToDelete } } });
+    return { msg: "Message deleted successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+// make an enemy in db
+//
+// triggerBattle
+//addCompanion
+//switchCompanion

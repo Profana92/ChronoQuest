@@ -15,7 +15,7 @@ const SignInPage = ({ searchParams: { callbackUrl } }: Props) => {
           <SignIn callbackUrl={callbackUrl || "/"} />
         </HalfWidthContainer>
         <HalfWidthContainer additionalClasses="relative ">
-          <Image src={backgroundImage} fill={true} alt="logo" className="cover h-full border border-white" />
+          <Image src={backgroundImage} alt="logo" priority={true} className="cover h-full border border-white" />
         </HalfWidthContainer>
       </LimitedWidthContainer>
     </section>
