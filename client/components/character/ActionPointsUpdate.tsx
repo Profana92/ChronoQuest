@@ -18,14 +18,14 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useEffect } from "react";
 import User from "@/models/userModel";
-const ActionPointsUpdate = ({ player }) => {
+const ActionPointsUpdate = ({ player }: { player: string }) => {
   // const { data: session, status, update } = useSession();
 
   const router = useRouter();
   const intervalPerPoint = 60000;
   const [fetchedDataStates, setfetchedDataStates] = useState(null);
   useEffect(() => {
-    // healthPointsNaturalRegeneration({ intervalPerPoint });
+    healthPointsNaturalRegeneration({ player, intervalPerPoint });
     actionPointsNaturalRegeneration({ player, intervalPerPoint });
   });
   // useEffect(() => {
@@ -40,7 +40,44 @@ const ActionPointsUpdate = ({ player }) => {
   // };
   // if (fetchedDataStates?.character?.inbox) console.log(true);
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-row gap-5">
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            updateHealthPoints({ player, valueToRecover: -5 });
+            router.refresh();
+          }}
+        >
+          Lose 5 HP
+        </button>
+        <button
+          onClick={async () => {
+            updateHealthPoints({ player, valueToRecover: 5 });
+            router.refresh();
+          }}
+        >
+          Gain 5 HP
+        </button>
+      </div>{" "}
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            const res = await updateActionPoints({ valueToRecover: -7 });
+            if (res?.msg) alert(res?.msg);
+            router.refresh();
+          }}
+        >
+          Lose 5 AP
+        </button>
+        <button
+          onClick={async () => {
+            updateActionPoints({ valueToRecover: 5 });
+            router.refresh();
+          }}
+        >
+          Gain 5 AP
+        </button>
+      </div>
       {/* {fetchedDataStates?.character?.inbox &&
         fetchedDataStates?.character?.inbox.map((item, index) => {
           return <h1 key={index}>{item._id}</h1>;
@@ -111,39 +148,8 @@ const ActionPointsUpdate = ({ player }) => {
       >
         Gain 5 DEX
       </button>
-      <button
-        onClick={async () => {
-          const res = await updateActionPoints({ valueToRecover: -7 });
-          if (res?.msg) alert(res?.msg);
-          router.refresh();
-        }}
-      >
-        Lose 5 AP
-      </button>
-      <button
-        onClick={async () => {
-          updateActionPoints({ valueToRecover: 5 });
-          router.refresh();
-        }}
-      >
-        Gain 5 AP
-      </button>
-      <button
-        onClick={async () => {
-          updateHealthPoints({ valueToRecover: -5 });
-          router.refresh();
-        }}
-      >
-        Lose 5 HP
-      </button>
-      <button
-        onClick={async () => {
-          updateHealthPoints({ valueToRecover: 5 });
-          router.refresh();
-        }}
-      >
-        Gain 5 HP
-      </button>
+     
+     
       <button
         onClick={async () => {
           updateXpAndLevel({ expirienceGain: 10 });
