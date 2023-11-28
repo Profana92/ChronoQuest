@@ -10,6 +10,7 @@ import {
   adminRemoveBasisItem,
   addMessageToInbox,
   removeMessageFromInbox,
+  triggerBattle,
 } from "@/actions/playerActions";
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
@@ -149,6 +150,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       >
         Generate item from &quot;Short Sword&quot; basis
       </button>
+
       <div className="flex flex-col">
         <button
           onClick={async () => {
@@ -177,6 +179,17 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
           }}
         >
           Add message to inbox with attachment
+        </button>
+      </div>
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            const addedMessage = await triggerBattle({ player, enemy: "Fox Anomaly" });
+            if (addedMessage?.msg) alert(addedMessage?.msg);
+            router.refresh();
+          }}
+        >
+          triggerBattle
         </button>
       </div>
       {activePlayerData?.inbox &&

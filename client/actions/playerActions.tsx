@@ -1,11 +1,13 @@
 "use server";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import User, { Message } from "@/models/userModel";
 import { redirect } from "next/navigation";
 import Item from "@/models/itemModel";
 import { Types } from "mongoose";
+import User from "@/models/userModel";
 import Player from "@/models/playerModel";
+import Companion from "@/models/companionModel";
+import Enemies from "@/models/enemiesModel";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -29,6 +31,7 @@ export async function fetchUserData({ id, playerName }: { id: string; playerName
     }
   }
 }
+
 export async function addNewCharacter({ name, sex }: { name: string; sex: string }) {
   try {
     const duplicate = await Player.findOne({ title: name });
@@ -222,7 +225,7 @@ export async function updateActionPoints({ player, valueToRecover = 0 }: { playe
 
     //make sure that ap never falls below 0
     if (amount + valueToRecover < 0) {
-      return { msg: "You have no AP left" };
+      return { msg: "Action points too low." };
     }
     // if current ap amount + valueToRecover >=maxAmount set ap to maxAmount, update last update date and do nothing.
 
@@ -378,10 +381,6 @@ export async function updateStats({
 }) {
   try {
     const charactedData = await Player.findOne({ title: player });
-
-    console.log("🚀 ~ file: playerActions.tsx:383 ~ charactedData:", charactedData);
-    console.log("🚀 ~ file: playerActions.tsx:383 ~ charactedData[statsToUpdate]:", charactedData[statsToUpdate]);
-
     if (charactedData[statsToUpdate].amount + pointsGain < 1) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -582,8 +581,78 @@ export async function removeMessageFromInbox({
     }
   }
 }
-// make an enemy in db
-//
-// triggerBattle
-//addCompanion
-//switchCompanion
+// export async function addCompanion({ player, companion }: { player: string; companion: string }) {
+//   try {
+//     const companionData = await Companion.findOne({ title: companion });
+//     return { msg: "Companion added successfully" };
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       redirect(`/errors?error=${error?.message}`);
+//     }
+//   }
+// }
+
+export async function triggerBattle({ player, enemy }: { player: string; enemy: string }) {
+  const playerData = await Player.findOne({ title: player });
+  const enemyData = await Enemies.findOne({ title: enemy });
+
+  const calcEvadeChances = () => {
+    let playerEvadeChance = (playerData.spd.amount - enemyData.spd) / playerData.spd.maxAmount;
+    let enemyEvadeChance = enemyData.spd / playerData.spd.maxAmount;
+    playerEvadeChance = playerEvadeChance <= 0 ? 0 : playerEvadeChance >= 1 ? 1 : playerEvadeChance;
+    enemyEvadeChance = enemyEvadeChance <= 0 ? 0 : enemyEvadeChance >= 1 ? 1 : enemyEvadeChance;
+    return { playerEvadeChance: +playerEvadeChance.toFixed(2), enemyEvadeChance: +enemyEvadeChance.toFixed(2) };
+  };
+
+  const calcBlockChance = () => {
+    let playerBlockChance = (playerData.str.amount - enemyData.spd) / playerData.str.maxAmount;
+    let enemyBlockChance = enemyData.str / playerData.str.maxAmount;
+    playerBlockChance = playerBlockChance <= 0 ? 0 : playerBlockChance >= 1 ? 1 : playerBlockChance;
+    enemyBlockChance = enemyBlockChance <= 0 ? 0 : enemyBlockChance >= 1 ? 1 : enemyBlockChance;
+    return { playerBlockChance: +playerBlockChance.toFixed(2), enemyBlockChance: +enemyBlockChance.toFixed(2) };
+  };
+
+  const apUpdate = await updateActionPoints({ player, valueToRecover: -enemyData.engageApLoss });
+  if (apUpdate?.msg === "Action points too low.") return apUpdate;
+  const bothEvadeChanges = calcEvadeChances();
+  const bothBlockChanges = calcBlockChance();
+
+  const trueOrNotBasedOnProbability = (percentageChanceOfTrue: number) => {
+    return Math.random() < percentageChanceOfTrue;
+  };
+
+  // const updatePlayerAP = await Player.updateOne(
+  //   { title: player },
+  //   { $set: { "ap.amount": playerData.ap.amount - +enemyData.engageApLoss } }
+  // );
+  const fightResult: { playerWon: boolean; rounds: { playerWonRound: boolean }[] } = { playerWon: false, rounds: [] };
+
+  for (let i = 0; i < 20; i++) {
+    //check if player HP dropped to 0 or lower, and return an object with as many rounds as passed and with status of won as false.
+    if (playerData.hp <= 0) {
+      fightResult.playerWon = false;
+      return fightResult;
+    }
+    const roundResult = { playerWonRound };
+    fightResult.rounds.push({ playerWonRound: true });
+    //calc evade changes for player and enemy
+  }
+  // updateHealthPoints({ player, valueToRecover = 0 }
+  console.log(fightResult);
+  //evade change
+  //block chance STR (+att)
+  //
+  // should take 20 rounds with for loop (most efficient loop)
+  // function to simulate evade (first priority) or hp loss
+  // add to fight history
+  //The result object should contain a insertedId property which is driver generated ObjectId for the insert operation.
+  // should update player hp, xp, level, gold
+  // should send mail with or without attachment
+  //
+
+  //IN THIS GAME //
+  // SPD -> increase evade chande
+}
+export async function equipCompanion() {}
+export async function unequipCompanion() {}
+export async function switchCompanion() {}
