@@ -58,6 +58,7 @@ export async function addNewCharacter({ name, sex }: { name: string; sex: string
       sex: sex,
       gold: 10,
       inbox: [],
+      attack: 1,
     });
     playerInPlayers.save();
     return { msg: "Player sucessfully created" };
@@ -596,62 +597,215 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   const playerData = await Player.findOne({ title: player });
   const enemyData = await Enemies.findOne({ title: enemy });
 
+  //Check AP amount, to allow fight
+  const apUpdate = await updateActionPoints({ player, valueToRecover: -enemyData.engageApLoss });
+  if (apUpdate?.msg === "Action points too low.") return apUpdate;
+
   const calcEvadeChances = () => {
     let playerEvadeChance = (playerData.spd.amount - enemyData.spd) / playerData.spd.maxAmount;
     let enemyEvadeChance = enemyData.spd / playerData.spd.maxAmount;
-    playerEvadeChance = playerEvadeChance <= 0 ? 0 : playerEvadeChance >= 1 ? 1 : playerEvadeChance;
-    enemyEvadeChance = enemyEvadeChance <= 0 ? 0 : enemyEvadeChance >= 1 ? 1 : enemyEvadeChance;
+    playerEvadeChance = playerEvadeChance <= 0 ? 0 : playerEvadeChance >= 0.4 ? 0.4 : playerEvadeChance;
+    enemyEvadeChance = enemyEvadeChance <= 0 ? 0 : enemyEvadeChance >= 0.4 ? 0.4 : enemyEvadeChance;
     return { playerEvadeChance: +playerEvadeChance.toFixed(2), enemyEvadeChance: +enemyEvadeChance.toFixed(2) };
   };
 
   const calcBlockChance = () => {
-    let playerBlockChance = (playerData.str.amount - enemyData.spd) / playerData.str.maxAmount;
+    let playerBlockChance = (playerData.str.amount - enemyData.str) / playerData.str.maxAmount;
     let enemyBlockChance = enemyData.str / playerData.str.maxAmount;
-    playerBlockChance = playerBlockChance <= 0 ? 0 : playerBlockChance >= 1 ? 1 : playerBlockChance;
-    enemyBlockChance = enemyBlockChance <= 0 ? 0 : enemyBlockChance >= 1 ? 1 : enemyBlockChance;
+    playerBlockChance = playerBlockChance <= 0 ? 0 : playerBlockChance >= 0.4 ? 0.4 : playerBlockChance;
+    enemyBlockChance = enemyBlockChance <= 0 ? 0 : enemyBlockChance >= 0.4 ? 0.4 : enemyBlockChance;
     return { playerBlockChance: +playerBlockChance.toFixed(2), enemyBlockChance: +enemyBlockChance.toFixed(2) };
   };
 
-  const apUpdate = await updateActionPoints({ player, valueToRecover: -enemyData.engageApLoss });
-  if (apUpdate?.msg === "Action points too low.") return apUpdate;
-  const bothEvadeChanges = calcEvadeChances();
-  const bothBlockChanges = calcBlockChance();
+  const calcDoubleStrikeChance = () => {
+    let playerDoubleStrikeChance = (playerData.acc.amount - enemyData.acc) / playerData.acc.maxAmount;
+    let enemyDoubleStrikeChance = enemyData.acc / playerData.acc.maxAmount;
+    playerDoubleStrikeChance =
+      playerDoubleStrikeChance <= 0 ? 0 : playerDoubleStrikeChance >= 1 ? 1 : playerDoubleStrikeChance;
+    enemyDoubleStrikeChance =
+      enemyDoubleStrikeChance <= 0 ? 0 : enemyDoubleStrikeChance >= 1 ? 1 : enemyDoubleStrikeChance;
+    return {
+      playerDoubleStrikeChance: +playerDoubleStrikeChance.toFixed(2),
+      enemyDoubleStrikeChance: +enemyDoubleStrikeChance.toFixed(2),
+    };
+  };
+
+  const calcCriticalHitChance = () => {
+    let playerCriticalHitChance = (playerData.dex.amount - enemyData.dex) / playerData.dex.maxAmount;
+    let enemyCriticalHitChance = enemyData.dex / playerData.dex.maxAmount;
+    playerCriticalHitChance =
+      playerCriticalHitChance <= 0 ? 0 : playerCriticalHitChance >= 1 ? 1 : playerCriticalHitChance;
+    enemyCriticalHitChance = enemyCriticalHitChance <= 0 ? 0 : enemyCriticalHitChance >= 1 ? 1 : enemyCriticalHitChance;
+    return {
+      playerCriticalHitChance: +playerCriticalHitChance.toFixed(2),
+      enemyCriticalHitChance: +enemyCriticalHitChance.toFixed(2),
+    };
+  };
+
+  const calcHealthRegenChance = () => {
+    let playerhealthRegenChance = (playerData.int.amount - enemyData.int) / playerData.int.maxAmount;
+    let enemyhealthRegenChance = enemyData.int / playerData.int.maxAmount;
+    playerhealthRegenChance =
+      playerhealthRegenChance <= 0 ? 0 : playerhealthRegenChance >= 1 ? 1 : playerhealthRegenChance;
+    enemyhealthRegenChance = enemyhealthRegenChance <= 0 ? 0 : enemyhealthRegenChance >= 1 ? 1 : enemyhealthRegenChance;
+    return {
+      playerhealthRegenChance: +playerhealthRegenChance.toFixed(2),
+      enemyhealthRegenChance: +enemyhealthRegenChance.toFixed(2),
+    };
+  };
 
   const trueOrNotBasedOnProbability = (percentageChanceOfTrue: number) => {
     return Math.random() < percentageChanceOfTrue;
   };
 
-  // const updatePlayerAP = await Player.updateOne(
-  //   { title: player },
-  //   { $set: { "ap.amount": playerData.ap.amount - +enemyData.engageApLoss } }
-  // );
-  const fightResult: { playerWon: boolean; rounds: { playerWonRound: boolean }[] } = { playerWon: false, rounds: [] };
-
-  for (let i = 0; i < 20; i++) {
-    //check if player HP dropped to 0 or lower, and return an object with as many rounds as passed and with status of won as false.
-    if (playerData.hp <= 0) {
-      fightResult.playerWon = false;
-      return fightResult;
+  const damageDoubleOrNot = (valueToBeDoubled: number, shouldBeDoubled: boolean) => {
+    if (shouldBeDoubled) {
+      return 2 * valueToBeDoubled;
+    } else {
+      return valueToBeDoubled;
     }
-    const roundResult = { playerWonRound };
-    fightResult.rounds.push({ playerWonRound: true });
+  };
+
+  const criticaHitOrNot = (valueToBeTripled: number, shouldBeTripled: boolean) => {
+    if (shouldBeTripled) {
+      return 3 * valueToBeTripled;
+    } else {
+      return valueToBeTripled;
+    }
+  };
+
+  const healOrNot = (valueToBeHealed: number, shouldBeHealed: boolean) => {
+    if (shouldBeHealed) {
+      return 3 * valueToBeHealed;
+    } else {
+      return valueToBeHealed;
+    }
+  };
+
+  const bothEvadeChances = calcEvadeChances();
+  const bothBlockChances = calcBlockChance();
+  const bothDoubleDmgChances = calcDoubleStrikeChance();
+  const bothCriticalHitChances = calcCriticalHitChance();
+  const bothHealthRegenChance = calcHealthRegenChance();
+
+  const fightResult: { playerWon: boolean; rounds: { playerWonRound: boolean }[] } = { playerWon: false, rounds: [] };
+  let playerHpBeforeFight = playerData.health.amount;
+  let enemyHpBeforeFight = enemyData.health.amount;
+  const calculateBothDmg = (
+    playerDoubleStrike: boolean,
+    enemyDoubleStrike: boolean,
+    playerCriticalStrike: boolean,
+    enemyCriticalStrike: boolean,
+    playerhealthRegen: boolean,
+    enemyhealthRegen: boolean,
+    playerEvaded: boolean,
+    enemyEvaded: boolean,
+    playerBlocked: boolean,
+    enemyBlocked: boolean
+  ) =>
+    //Take base dmg, combine with strenght and enemy armor, check if double and critical, subtract healedValue
+    {
+      let playerDmg =
+        damageDoubleOrNot(
+          criticaHitOrNot(
+            playerData.attack + Math.floor(playerData.str.amount / 2) - enemyData.armor,
+            playerCriticalStrike
+          ),
+          playerDoubleStrike
+        ) - healOrNot(Math.floor(enemyData.int / 2), enemyhealthRegen);
+      playerDmg = playerDmg < 0 ? 0 : playerDmg;
+      let enemyDmg =
+        damageDoubleOrNot(
+          criticaHitOrNot(
+            playerData.attack + Math.floor(playerData.str.amount / 2) - playerData.armor,
+            enemyCriticalStrike
+          ),
+          enemyDoubleStrike
+        ) - healOrNot(Math.floor(playerData.int.amount / 2), playerhealthRegen);
+      enemyDmg = enemyDmg < 0 ? 0 : enemyDmg;
+
+      const returnedValue = { playerDmg: Math.floor(playerDmg / 10), enemyDmg: Math.floor(enemyDmg / 10) };
+
+      if (playerEvaded) returnedValue.enemyDmg = 0;
+      if (enemyEvaded) returnedValue.playerDmg = 0;
+      if (playerBlocked) returnedValue.enemyDmg = 0;
+      if (enemyBlocked) returnedValue.playerDmg = 0;
+      return returnedValue;
+    };
+
+  for (let i = 0; i < 10; i++) {
+    const playerEvaded = trueOrNotBasedOnProbability(bothEvadeChances.playerEvadeChance);
+    const enemyEvaded = trueOrNotBasedOnProbability(bothEvadeChances.enemyEvadeChance);
+    const playerBlocked = trueOrNotBasedOnProbability(bothBlockChances.playerBlockChance);
+    const enemyBlocked = trueOrNotBasedOnProbability(bothBlockChances.enemyBlockChance);
+    const playerDoubleStrike = trueOrNotBasedOnProbability(bothDoubleDmgChances.playerDoubleStrikeChance);
+    const enemyDoubleStrike = trueOrNotBasedOnProbability(bothDoubleDmgChances.enemyDoubleStrikeChance);
+    const playerCriticalStrike = trueOrNotBasedOnProbability(bothCriticalHitChances.playerCriticalHitChance);
+    const enemyCriticalStrike = trueOrNotBasedOnProbability(bothCriticalHitChances.enemyCriticalHitChance);
+    const playerhealthRegen = trueOrNotBasedOnProbability(bothHealthRegenChance.playerhealthRegenChance);
+    const enemyhealthRegen = trueOrNotBasedOnProbability(bothHealthRegenChance.enemyhealthRegenChance);
+    const { playerDmg, enemyDmg } = calculateBothDmg(
+      playerDoubleStrike,
+      enemyDoubleStrike,
+      playerCriticalStrike,
+      enemyCriticalStrike,
+      playerhealthRegen,
+      enemyhealthRegen,
+      playerEvaded,
+      enemyEvaded,
+      playerBlocked,
+      enemyBlocked
+    );
+    console.log("playerDmg", playerDmg);
+    console.log("enemyDmg", enemyDmg);
+    const roundSummary = {
+      playerHpLoss: enemyDmg,
+      enemyHpLoss: playerDmg,
+      playerWonRound: playerDmg >= enemyDmg ? true : false,
+    };
+
+    fightResult.rounds.push(roundSummary);
+    console.log(playerHpBeforeFight);
+    playerHpBeforeFight -= enemyDmg;
+    enemyHpBeforeFight -= playerDmg;
+
+    if (playerHpBeforeFight <= 0) {
+      fightResult.playerWon = false;
+      break;
+    }
+    if (enemyHpBeforeFight <= 0) {
+      fightResult.playerWon = true;
+      break;
+    }
+    //  if(i===9)
     //calc evade changes for player and enemy
   }
   // updateHealthPoints({ player, valueToRecover = 0 }
-  console.log(fightResult);
-  //evade change
-  //block chance STR (+att)
-  //
-  // should take 20 rounds with for loop (most efficient loop)
-  // function to simulate evade (first priority) or hp loss
-  // add to fight history
-  //The result object should contain a insertedId property which is driver generated ObjectId for the insert operation.
-  // should update player hp, xp, level, gold
-  // should send mail with or without attachment
-  //
 
+  const numberOfPlayerWonRounds = fightResult.rounds.reduce((acc, cur) => {
+    if (cur.playerWonRound) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+  const numberOfEnemyWonRounds = fightResult.rounds.reduce((acc, cur) => {
+    if (!cur.playerWonRound) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+
+  if (fightResult.rounds.length === 10 && numberOfPlayerWonRounds >= numberOfEnemyWonRounds) {
+    fightResult.playerWon = true;
+  } else fightResult.playerWon = false;
+  console.log(fightResult);
   //IN THIS GAME //
-  // SPD -> increase evade chande
+  // SPD -> Evade chande
+  // ACC -> Double Dmg Chance
+  // STR -> Block chance
+  // DEX -> Critical Hit
+  // INT -> Health regen after round +
+  // CHA -> SHOP/UPGRADE PRICES
 }
 export async function equipCompanion() {}
 export async function unequipCompanion() {}
