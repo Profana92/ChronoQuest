@@ -29,6 +29,7 @@ const playerSchema = new Schema({
   sex: String,
   gold: Number,
   inbox: [messageSchema],
+  attack: Number,
 });
 
 const Player = models.player || model("player", playerSchema);

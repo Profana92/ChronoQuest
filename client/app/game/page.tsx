@@ -18,7 +18,6 @@ const Game = async () => {
   return (
     <section className="pt-14">
       {characterData?.playerData ? <ActionPointsUpdate playerData={JSON.stringify(characterData)} /> : ""}
-      {/* {characterData?.player ? <CharacterInfo /> : <NewCharacter />} */}
       {characterData?.playerData ? <CharacterInfo characterData={JSON.stringify(characterData)} /> : <NewCharacter />}
     </section>
   );
