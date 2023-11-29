@@ -146,7 +146,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       <button
         onClick={async () => {
           const generatedItem = await generateItem({ itemBasis: "Short Sword", origin: "Admin" });
-          console.log(generatedItem);
+
           router.refresh();
         }}
       >

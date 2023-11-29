@@ -22,7 +22,7 @@ const AddStatsButton = ({
   return (
     <div
       role="button"
-      className="py-2 flex flex-row justify-center items-center"
+      className="py-2 w-full h-[70px] flex flex-col justify-center items-center mx-1"
       onClick={async () => {
         await buySkill({
           player: player,
@@ -34,7 +34,7 @@ const AddStatsButton = ({
       }}
     >
       <GiGoldBar className="inline text-amber-500 text-2xl" />
-      <span>+ {skillCost * playerData[statName].amount}</span>{" "}
+      <span>+ {skillCost * playerData[statName].amount}</span>
     </div>
   );
 };

@@ -8,6 +8,7 @@ import User from "@/models/userModel";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -435,7 +436,7 @@ export async function buySkill({
   try {
     const charactedData = await Player.findOne({ title: player });
     if (charactedData.gold - skillCost * charactedData[statsToUpdate].amount < 0)
-      return { msg: "Player Gold not updated. Not enough gold!" };
+      return { msg: "Player skill not updated. Not enough gold!" };
     if (charactedData[statsToUpdate].amount + pointsGain > charactedData[statsToUpdate].maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -555,7 +556,9 @@ export async function adminRemoveBasisItem({ itemName }: { itemName: string }) {
 
 export async function generateItem({ itemBasis, origin }: { itemBasis: string; origin: string }) {
   try {
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", origin);
     const basisItemData = await Item.findOne({ itemName: itemBasis });
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", basisItemData);
     const rarityFactors = [1, 1.5, 2, 2.5, 3];
     const rarityProbability = [
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
@@ -827,7 +830,6 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
     //  if(i===9)
     //calc evade changes for player and enemy
   }
-  // updateHealthPoints({ player, valueToRecover = 0 }
 
   const numberOfPlayerWonRounds = fightResult.rounds.reduce((acc, cur) => {
     if (cur.playerWonRound) {
@@ -846,7 +848,7 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
     fightResult.playerWon = true;
   } else fightResult.playerWon = false;
   if (playerHpBeforeFight < 0) playerHpBeforeFight = 0;
-  console.log(fightResult.playerWon);
+
   updateXpAndLevel({ player, expirienceGain: enemyData.xpReward });
   const inboxUpdate = await Player.findOneAndUpdate(
     { title: player },
@@ -859,6 +861,7 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   );
   const item = enemyData.possibleLoot[Math.floor(Math.random() * enemyData.possibleLoot.length)];
   const message = `You have successfully defeated enemy: ${enemyData.title}. By doing that, you got ${enemyData.goldReward} Gold and ${item}`;
+
   if (fightResult.playerWon)
     addMessageToInbox({
       message: message,

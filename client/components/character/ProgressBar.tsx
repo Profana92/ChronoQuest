@@ -1,6 +1,6 @@
 const ProgressBar = ({ icon, characterData, textContent, maxValue, type }) => {
   return (
-    <div className="flex-1 text-base font-medium text-green-700 dark:text-green-500 border border-solid border-red-500 py-2">
+    <div className="flex-1 text-base font-medium py-2">
       <p className="align-middle">
         {icon}
         {textContent}
