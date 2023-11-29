@@ -1,13 +1,13 @@
 "use server";
+
+import Enemies from "@/models/enemiesModel";
+import Item from "@/models/itemModel";
+import Player from "@/models/playerModel";
+import { Types } from "mongoose";
+import User from "@/models/userModel";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Item from "@/models/itemModel";
-import { Types } from "mongoose";
-import User from "@/models/userModel";
-import Player from "@/models/playerModel";
-import Companion from "@/models/companionModel";
-import Enemies from "@/models/enemiesModel";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -20,10 +20,10 @@ const levelTable = [
   15219400, 15694800,
 ];
 
-export async function fetchUserData({ id, playerName }: { id: string; playerName: string }) {
+export async function fetchUserData({ id }: { id: string; playerName: string }) {
   try {
     const userData = await User.findOne({ _id: id });
-    const playerData = await Player.findOne({ title: playerName });
+    const playerData = await Player.findOne({ title: userData.player });
     return { msg: "Player sucessfully fetched", userData, playerData };
   } catch (error) {
     if (error instanceof Error) {
@@ -421,7 +421,68 @@ export async function updateStats({
     }
   }
 }
+export async function buySkill({
+  player,
+  skillCost,
+  statsToUpdate,
+  pointsGain = 1,
+}: {
+  player: string;
+  skillCost: number;
+  statsToUpdate: string;
+  pointsGain: number;
+}) {
+  try {
+    const charactedData = await Player.findOne({ title: player });
+    if (charactedData.gold - skillCost * charactedData[statsToUpdate].amount < 0)
+      return { msg: "Player Gold not updated. Not enough gold!" };
+    if (charactedData[statsToUpdate].amount + pointsGain > charactedData[statsToUpdate].maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].maxAmount,
+          },
+        }
+      );
+      return { msg: "Player Gold not updated. Exceeding Max Value" };
+    }
+    await Player.updateOne(
+      { title: player },
+      {
+        $set: {
+          gold: charactedData.gold - skillCost * charactedData[statsToUpdate].amount,
+        },
+      }
+    );
+    if (charactedData[statsToUpdate].amount + pointsGain < 1) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            [`${statsToUpdate}.amount`]: 1,
+          },
+        }
+      );
+      return;
+    }
 
+    const newAmount = await Player.updateOne(
+      { title: player },
+      {
+        $set: {
+          [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].amount + pointsGain,
+        },
+      }
+    );
+
+    return { msg: "Player Gold updated" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
 export async function adminAddNewBasisItem({
   itemName,
   category,
@@ -492,7 +553,7 @@ export async function adminRemoveBasisItem({ itemName }: { itemName: string }) {
   }
 }
 
-export async function generateItem({ itemBasis }: { itemBasis: string }) {
+export async function generateItem({ itemBasis, origin }: { itemBasis: string; origin: string }) {
   try {
     const basisItemData = await Item.findOne({ itemName: itemBasis });
     const rarityFactors = [1, 1.5, 2, 2.5, 3];
@@ -511,7 +572,7 @@ export async function generateItem({ itemBasis }: { itemBasis: string }) {
         itemCategory: basisItemData.category.itemCategory,
       },
       rarity: itemRarity,
-      origin: basisItemData.origin,
+      origin: origin,
       itemLevel: basisItemData.itemLevel,
       basisValue: Math.floor(basisItemData.basisValue * rarityFactors[itemRarity]),
       image: basisItemData.image,
@@ -551,7 +612,7 @@ export async function addMessageToInbox({
 }) {
   try {
     if (itemBasis !== null) {
-      const attachment = await generateItem({ itemBasis: itemBasis });
+      const attachment = await generateItem({ itemBasis: itemBasis, origin: sender });
       const completeMessage = { message: message, attachment: attachment?.generatedItem, sender: sender };
       const inboxUpdate = await Player.findOneAndUpdate({ title: recipient }, { $push: { inbox: completeMessage } });
     } else {
@@ -582,17 +643,6 @@ export async function removeMessageFromInbox({
     }
   }
 }
-// export async function addCompanion({ player, companion }: { player: string; companion: string }) {
-//   try {
-//     const companionData = await Companion.findOne({ title: companion });
-//     return { msg: "Companion added successfully" };
-//   } catch (error) {
-//     if (error instanceof Error) {
-//       redirect(`/errors?error=${error?.message}`);
-//     }
-//   }
-// }
-
 export async function triggerBattle({ player, enemy }: { player: string; enemy: string }) {
   const playerData = await Player.findOne({ title: player });
   const enemyData = await Enemies.findOne({ title: enemy });
@@ -756,8 +806,6 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       playerBlocked,
       enemyBlocked
     );
-    console.log("playerDmg", playerDmg);
-    console.log("enemyDmg", enemyDmg);
     const roundSummary = {
       playerHpLoss: enemyDmg,
       enemyHpLoss: playerDmg,
@@ -765,7 +813,6 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
     };
 
     fightResult.rounds.push(roundSummary);
-    console.log(playerHpBeforeFight);
     playerHpBeforeFight -= enemyDmg;
     enemyHpBeforeFight -= playerDmg;
 
@@ -798,7 +845,28 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   if (fightResult.rounds.length === 10 && numberOfPlayerWonRounds >= numberOfEnemyWonRounds) {
     fightResult.playerWon = true;
   } else fightResult.playerWon = false;
-  console.log(fightResult);
+  if (playerHpBeforeFight < 0) playerHpBeforeFight = 0;
+  console.log(fightResult.playerWon);
+  updateXpAndLevel({ player, expirienceGain: enemyData.xpReward });
+  const inboxUpdate = await Player.findOneAndUpdate(
+    { title: player },
+    {
+      $set: {
+        "health.amount": playerHpBeforeFight,
+        gold: fightResult.playerWon ? playerData?.gold + enemyData.goldReward : playerData?.gold,
+      },
+    }
+  );
+  const item = enemyData.possibleLoot[Math.floor(Math.random() * enemyData.possibleLoot.length)];
+  const message = `You have successfully defeated enemy: ${enemyData.title}. By doing that, you got ${enemyData.goldReward} Gold and ${item}`;
+  if (fightResult.playerWon)
+    addMessageToInbox({
+      message: message,
+      recipient: player,
+      itemBasis: item,
+      sender: enemyData.title,
+    });
+
   //IN THIS GAME //
   // SPD -> Evade chande
   // ACC -> Double Dmg Chance
@@ -807,6 +875,17 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   // INT -> Health regen after round +
   // CHA -> SHOP/UPGRADE PRICES
 }
+
+// export async function addCompanion({ player, companion }: { player: string; companion: string }) {
+//   try {
+//     const companionData = await Companion.findOne({ title: companion });
+//     return { msg: "Companion added successfully" };
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       redirect(`/errors?error=${error?.message}`);
+//     }
+//   }
+// }
 export async function equipCompanion() {}
 export async function unequipCompanion() {}
 export async function switchCompanion() {}

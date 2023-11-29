@@ -1,15 +1,18 @@
-import React from "react";
 import {
-  GiGoldBar,
-  GiAxeSword,
   GiAbdominalArmor,
-  GiHealthPotion,
-  GiRank3,
   GiArmorPunch,
   GiAssassinPocket,
+  GiAxeSword,
   GiBeamsAura,
+  GiGoldBar,
+  GiHealthPotion,
+  GiRank3,
 } from "react-icons/gi";
+
+import AddStatsButton from "./AddStatsButton";
 import ProgressBar from "./ProgressBar";
+import React from "react";
+
 const CharacterInfo = ({ characterData }: { characterData: string }) => {
   const { playerData } = JSON.parse(characterData);
   return (
@@ -62,13 +65,22 @@ const CharacterInfo = ({ characterData }: { characterData: string }) => {
           maxValue={playerData.str.maxAmount}
           type="normal"
         />
-        <ProgressBar
-          icon={<GiAssassinPocket className="inline text-amber-500 text-2xl mr-2" />}
-          characterData={playerData.dex.amount}
-          textContent="Dexterity:"
-          maxValue={playerData.dex.maxAmount}
-          type="normal"
-        />
+        <div className="flex">
+          <ProgressBar
+            icon={<GiAssassinPocket className="inline text-amber-500 text-2xl mr-2" />}
+            characterData={playerData.dex.amount}
+            textContent="Dexterity:"
+            maxValue={playerData.dex.maxAmount}
+            type="normal"
+          />
+          <AddStatsButton
+            characterData={characterData}
+            player={playerData.title}
+            skillCost={5}
+            statName="dex"
+            value={1}
+          />
+        </div>
         <ProgressBar
           icon={<GiBeamsAura className="inline text-amber-500 text-2xl mr-2" />}
           characterData={playerData.int.amount}

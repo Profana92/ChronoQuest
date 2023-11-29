@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-
 import "./globals.css";
 import "the-new-css-reset/css/reset.css";
-import Provider from "@/context/provider";
+
 import Header from "@/components/global/Header";
-import { Oswald, Lato } from "next/font/google";
+import { Lato } from "next/font/google";
+import type { Metadata } from "next";
+import Provider from "@/context/provider";
+import localFont from "next/font/local";
 
 const oswald = localFont({
   src: "./Oswald-VariableFont_wght.ttf",
-  display: "swap",
+  display: "block",
   variable: "--font-oswald",
   preload: true,
 });
@@ -17,7 +17,7 @@ const oswald = localFont({
 const lato = Lato({
   subsets: ["latin"],
   weight: ["100", "300", "400", "700", "900"],
-  display: "swap",
+  display: "block",
   variable: "--font-lato",
 });
 
