@@ -556,9 +556,7 @@ export async function adminRemoveBasisItem({ itemName }: { itemName: string }) {
 
 export async function generateItem({ itemBasis, origin }: { itemBasis: string; origin: string }) {
   try {
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", origin);
     const basisItemData = await Item.findOne({ itemName: itemBasis });
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", basisItemData);
     const rarityFactors = [1, 1.5, 2, 2.5, 3];
     const rarityProbability = [
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3,
