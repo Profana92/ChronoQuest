@@ -186,7 +186,7 @@ export async function updateHealthPoints({ player, valueToRecover = 0 }: { playe
   try {
     const { amount, maxAmount } = (await Player.findOne({ title: player })).health;
 
-    //Prevent AP from falling belove 0
+    //Prevent HP from falling belove 0
     if (amount + valueToRecover < 0) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -197,10 +197,11 @@ export async function updateHealthPoints({ player, valueToRecover = 0 }: { playe
           },
         }
       );
+
       return;
     }
 
-    //if current AP + valueToRecover is even or lesser than maxAmount, set that amount to maxAmount
+    //if current hP + valueToRecover is even or lesser than maxAmount, set that amount to maxAmount
     if (amount + valueToRecover <= maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },

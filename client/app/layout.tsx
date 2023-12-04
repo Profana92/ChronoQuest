@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full font-lato text-Neutral-White bg-Neutral-Dark relative">
         <Provider>
           <Header />
-          <main>{children}</main>
+          <main className="h-full">{children}</main>
         </Provider>
       </body>
     </html>
