@@ -20,7 +20,11 @@ const Game = async () => {
     <section>
       {characterData?.playerData ? <ActionPointsUpdate playerData={JSON.stringify(characterData)} /> : ""}
       <div className="flex">
-        {characterData?.playerData ? <CharacterInfo characterData={JSON.stringify(characterData)} /> : <NewCharacter />}
+        {characterData?.playerData ? (
+          <CharacterInfo possibleToBuyPoints={true} characterData={JSON.stringify(characterData)} />
+        ) : (
+          <NewCharacter />
+        )}
       </div>
     </section>
   );

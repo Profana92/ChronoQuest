@@ -45,7 +45,7 @@ const GameMenu = () => {
     );
   });
   return (
-    <div className="absolute w-72 h-[calc(100%-56px)] p-5">
+    <div className="w-72 h-[calc(100%-56px)] p-5">
       <ul>
         {menuFirstSectionContent}
         <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />

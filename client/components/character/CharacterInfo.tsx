@@ -4,16 +4,26 @@ import {
   GiAssassinPocket,
   GiAxeSword,
   GiBeamsAura,
+  GiBullseye,
   GiGoldBar,
   GiHealthPotion,
   GiRank3,
+  GiTalk,
+  GiTargetArrows,
+  GiWingfoot,
 } from "react-icons/gi";
 
 import AddStatsButton from "./AddStatsButton";
 import ProgressBar from "./ProgressBar";
 import React from "react";
 
-const CharacterInfo = ({ characterData }: { characterData: string }) => {
+const CharacterInfo = ({
+  characterData,
+  possibleToBuyPoints,
+}: {
+  characterData: string;
+  possibleToBuyPoints: boolean;
+}) => {
   const { playerData } = JSON.parse(characterData);
   return (
     <div className="flex flex-col w-96 p-6 text-sm">
@@ -45,16 +55,18 @@ const CharacterInfo = ({ characterData }: { characterData: string }) => {
         </p>
         <p>
           <span className="mr-2">XP: {playerData.xp}</span>
-          <GiRank3 className="inline text-amber-500 text-2xl" />
+          <GiTargetArrows className="inline text-amber-500 text-2xl" />
         </p>
       </div>
-      <ProgressBar
-        icon={<GiHealthPotion className="inline text-amber-500 text-2xl mr-2" />}
-        characterData={playerData.health.amount}
-        maxValue={playerData.health.maxAmount}
-        textContent="Health:"
-        type="percentage"
-      />
+      <div className="flex flex-row justify-between ">
+        <ProgressBar
+          icon={<GiHealthPotion className="inline text-amber-500 text-2xl mr-2" />}
+          characterData={playerData.health.amount}
+          maxValue={playerData.health.maxAmount}
+          textContent="Health:"
+          type="percentage"
+        />{" "}
+      </div>
 
       <div className="flex flex-row">
         <div className="flex flex-col flex-1">
@@ -82,7 +94,7 @@ const CharacterInfo = ({ characterData }: { characterData: string }) => {
           />
 
           <ProgressBar
-            icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+            icon={<GiTalk className="inline text-amber-500 text-2xl mr-2" />}
             characterData={playerData.cha.amount}
             textContent="Charisma:"
             maxValue={playerData.cha.maxAmount}
@@ -90,7 +102,7 @@ const CharacterInfo = ({ characterData }: { characterData: string }) => {
           />
 
           <ProgressBar
-            icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+            icon={<GiWingfoot className="inline text-amber-500 text-2xl mr-2" />}
             characterData={playerData.spd.amount}
             textContent="Speed:"
             maxValue={playerData.spd.maxAmount}
@@ -98,14 +110,14 @@ const CharacterInfo = ({ characterData }: { characterData: string }) => {
           />
 
           <ProgressBar
-            icon={<GiArmorPunch className="inline text-amber-500 text-2xl mr-2" />}
+            icon={<GiBullseye className="inline text-amber-500 text-2xl mr-2" />}
             characterData={playerData.acc.amount}
             textContent="Accuracy:"
             maxValue={playerData.acc.maxAmount}
             type="normal"
           />
         </div>
-        <div className="">
+        <div className={`${possibleToBuyPoints === true ? "block" : "hidden"}`}>
           <AddStatsButton
             characterData={characterData}
             player={playerData.title}
