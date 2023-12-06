@@ -3,6 +3,7 @@ import Link from "next/link";
 const GameMenu = () => {
   const menuFirstSectionData = [
     { link: "/game/overview", title: "Overview" },
+    { link: "/game/inventory", title: "Inventory" },
     { link: "/game/messages", title: "Messages" },
     { link: "/game/leaderboard", title: "Leaderboard" },
     { link: "/game/arena", title: "Arena" },
