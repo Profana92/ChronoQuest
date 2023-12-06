@@ -11,7 +11,6 @@ export default async function GameLayout({ children }: { children: React.ReactNo
   const characterData = (await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player }))
     ?.playerData;
 
-  console.log(characterData);
   return (
     <div className="pt-[74px] grid grid-cols-[288px_1fr] grid-rows-[auto_1fr] gap-4 p-5 max-w-[1920px] mx-auto">
       <div className="row-start-1 row-end-3 border border-white border-solid">

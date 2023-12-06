@@ -9,7 +9,6 @@ export default async function StatusBar() {
   const characterData = (await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player }))
     ?.playerData;
 
-  console.log(characterData);
   return (
     <div className="col-start-2 col-end-3 flex flex-wrap">
       <div className="flex-1 basis-40 flex-shrink-0 p-4 border border-white border-solid flex flex-row justify-start items-center">
