@@ -1,11 +1,12 @@
 "use client";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
 
-import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
+import { motion, useScroll, useTransform } from "framer-motion";
+
 import HeadingPrimary from "@/components/reusable/HeadingPrimary";
-import ParagraphRegular from "@/components/reusable/ParagraphRegular";
+import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
 import LinkPrimary from "@/components/reusable/LinkPrimary";
+import ParagraphRegular from "@/components/reusable/ParagraphRegular";
+import { useRef } from "react";
 
 const Hero = () => {
   const ref = useRef(null);
@@ -16,7 +17,7 @@ const Hero = () => {
   const mountainsBottomLeftY = useTransform(scrollYProgress, [0, 1], [0, 50]);
   const mountainsLower = useTransform(scrollYProgress, [0, 1], [0, 250]);
   const mountainsUpper = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const planetsY = useTransform(scrollYProgress, [0, 1], [0, 1200]);
+  const planetsY = useTransform(scrollYProgress, [0, 1], [0, 600]);
   const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 1000]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, 500]);
 

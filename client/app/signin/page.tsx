@@ -1,8 +1,9 @@
-import SignIn from "@/components/auth/SignIn";
 import HalfWidthContainer from "@/components/containers/HalfWidthContainer";
-import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
 import Image from "next/image";
+import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
+import SignIn from "@/components/auth/SignIn";
 import backgroundImage from "@/public/backgrounds/signInPage/background.jpg";
+
 type Props = {
   params: {};
   searchParams: { callbackUrl: string };

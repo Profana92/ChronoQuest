@@ -1,17 +1,19 @@
 "use client";
+
 import {
   actionPointsNaturalRegeneration,
-  healthPointsNaturalRegeneration,
-  updateHealthPoints,
-  updateActionPoints,
-  updateStats,
-  generateItem,
+  addMessageToInbox,
   adminAddNewBasisItem,
   adminRemoveBasisItem,
-  addMessageToInbox,
+  generateItem,
+  healthPointsNaturalRegeneration,
   removeMessageFromInbox,
   triggerBattle,
+  updateActionPoints,
+  updateHealthPoints,
+  updateStats,
 } from "@/actions/playerActions";
+
 import { updateXpAndLevel } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +27,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       <div className="flex flex-col">
         <button
           onClick={async () => {
-            updateHealthPoints({ player, valueToRecover: -5 });
+            await updateHealthPoints({ player, valueToRecover: -5 });
             router.refresh();
           }}
         >
@@ -33,7 +35,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
         </button>
         <button
           onClick={async () => {
-            updateHealthPoints({ player, valueToRecover: 5 });
+            await updateHealthPoints({ player, valueToRecover: 5 });
             router.refresh();
           }}
         >
@@ -51,7 +53,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
         </button>
         <button
           onClick={async () => {
-            updateActionPoints({ player, valueToRecover: 5 });
+            await updateActionPoints({ player, valueToRecover: 5 });
             router.refresh();
           }}
         >
@@ -61,7 +63,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       <div className="flex flex-col">
         <button
           onClick={async () => {
-            updateXpAndLevel({ player, expirienceGain: 10 });
+            await updateXpAndLevel({ player, expirienceGain: 10 });
             router.refresh();
           }}
         >
@@ -69,7 +71,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
         </button>
         <button
           onClick={async () => {
-            updateXpAndLevel({ player, expirienceGain: -10 });
+            await updateXpAndLevel({ player, expirienceGain: -10 });
             router.refresh();
           }}
         >
@@ -79,7 +81,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       <div className="flex flex-col">
         <button
           onClick={async () => {
-            updateStats({ player, statsToUpdate: "dex", pointsGain: -5 });
+            await updateStats({ player, statsToUpdate: "dex", pointsGain: -5 });
             router.refresh();
           }}
         >
@@ -87,7 +89,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
         </button>
         <button
           onClick={async () => {
-            updateStats({ player, statsToUpdate: "dex", pointsGain: 5 });
+            await updateStats({ player, statsToUpdate: "dex", pointsGain: 5 });
             router.refresh();
           }}
         >
@@ -97,7 +99,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       <div className="flex flex-col">
         <button
           onClick={async () => {
-            updateStats({ player, statsToUpdate: "str", pointsGain: -5 });
+            await updateStats({ player, statsToUpdate: "str", pointsGain: -5 });
             router.refresh();
           }}
         >
@@ -105,7 +107,7 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
         </button>
         <button
           onClick={async () => {
-            updateStats({ player, statsToUpdate: "str", pointsGain: 5 });
+            await updateStats({ player, statsToUpdate: "str", pointsGain: 5 });
             router.refresh();
           }}
         >
@@ -143,8 +145,8 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
       </div>
       <button
         onClick={async () => {
-          const generatedItem = await generateItem({ itemBasis: "Short Sword" });
-          console.log(generatedItem);
+          const generatedItem = await generateItem({ itemBasis: "Short Sword", origin: "Admin" });
+
           router.refresh();
         }}
       >
@@ -197,8 +199,8 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
           return (
             <p
               key={index}
-              onClick={() => {
-                removeMessageFromInbox({ characterName: player, idToDelete: item._id });
+              onClick={async () => {
+                await removeMessageFromInbox({ characterName: player, idToDelete: item._id });
                 router.refresh();
               }}
             >

@@ -1,23 +1,22 @@
 import FullWidthContainer from "@/components/containers/FullWidthContainer";
 import HalfWidthContainer from "@/components/containers/HalfWidthContainer";
-import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
-import SectionContainer from "@/components/containers/SectionContainer";
 import HeadingPrimary from "@/components/reusable/HeadingPrimary";
 import HeadingSecondary from "@/components/reusable/HeadingSecondary";
+import Hero from "@/components/sections/Home/Hero";
 import IconBox from "@/components/reusable/IconBox";
+import LimitedWidthContainer from "@/components/containers/LimitedWidthContainer";
 import LinkPrimary from "@/components/reusable/LinkPrimary";
 import ParagraphRegular from "@/components/reusable/ParagraphRegular";
-import { SiNextdotjs } from "react-icons/si";
-import { SiTypescript } from "react-icons/si";
-import { SiTailwindcss } from "react-icons/si";
+import SectionContainer from "@/components/containers/SectionContainer";
 import { SiJest } from "react-icons/si";
 import { SiJsonwebtokens } from "react-icons/si";
 import { SiMongodb } from "react-icons/si";
 import { SiMongoose } from "react-icons/si";
+import { SiNextdotjs } from "react-icons/si";
 import { SiReact } from "react-icons/si";
+import { SiTailwindcss } from "react-icons/si";
 import { SiTestinglibrary } from "react-icons/si";
-
-import Hero from "@/components/sections/Home/Hero";
+import { SiTypescript } from "react-icons/si";
 
 export default function Home() {
   return (

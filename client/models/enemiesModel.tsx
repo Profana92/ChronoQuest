@@ -17,6 +17,11 @@ const enemiesSchema = new Schema({
   timeOfOrigin: String,
   image: String,
   engageApLoss: Number,
+  possibleLoot: [
+    {
+      type: String,
+    },
+  ],
 });
 
 const Enemies = models.enemies || model("enemies", enemiesSchema);
