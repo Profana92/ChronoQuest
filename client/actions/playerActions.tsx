@@ -629,6 +629,17 @@ export async function addMessageToInbox({
   }
 }
 
+export async function getMessages({ player }: { player: string }) {
+  try {
+    const messages = await Player.find({ title: player }, "inbox");
+    console.log(messages);
+    return { msg: "Message fetched successfully", messages };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
 export async function removeMessageFromInbox({
   characterName,
   idToDelete,
