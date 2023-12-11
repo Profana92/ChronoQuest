@@ -1,18 +1,21 @@
 "use client";
-import Link from "next/link";
+
 import Button from "../global/Button";
 import Form from "../global/Form";
+import Link from "next/link";
 import { addNewCharacter } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
+
 const NewCharacter = () => {
   const router = useRouter();
   async function createNewUserHandler(formData) {
     const name = formData.get("name");
     const sex = formData.get("sex");
     const res = await addNewCharacter({ name, sex });
+    router.refresh();
   }
   return (
-    <div className="absolute z-50 inset-0 flex items-center justify-center flex-col">
+    <div className="absolute z-50 inset-0 flex items-center justify-center flex-col bg-[#0E0A21]">
       <h2>Create new player!</h2>
       <Form action={createNewUserHandler}>
         <label htmlFor="name">Choose a name:</label>

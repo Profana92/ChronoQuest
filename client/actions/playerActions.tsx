@@ -7,8 +7,8 @@ import { Types } from "mongoose";
 import User from "@/models/userModel";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { itemType } from "@/types/itemType";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
@@ -60,6 +60,19 @@ export async function addNewCharacter({ name, sex }: { name: string; sex: string
       gold: 10,
       inbox: [],
       attack: 1,
+      inventory: [],
+      equipedItems: {
+        head: null,
+        chest: null,
+        leftArm: null,
+        rightArm: null,
+        legs: null,
+        feet: null,
+        gloves: null,
+        necklace: null,
+        belt: null,
+        ring: null,
+      },
     });
     playerInPlayers.save();
     return { msg: "Player sucessfully created" };
@@ -591,6 +604,7 @@ export async function generateItem({ itemBasis, origin }: { itemBasis: string; o
         acc: Math.floor(basisItemData.stats.acc * rarityFactors[itemRarity]),
         armor: Math.floor(basisItemData.stats.armor * rarityFactors[itemRarity]),
       },
+      slot: basisItemData.slot,
     };
 
     return { msg: "Item successfully generated", generatedItem: newItem };
@@ -639,6 +653,156 @@ export async function removeMessageFromInbox({
   try {
     const deleteItem = await Player.updateOne({ title: characterName }, { $pull: { inbox: { _id: idToDelete } } });
     return { msg: "Message deleted successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+export async function moveMessageAttachmentToInventory({
+  characterName,
+  itemToMove,
+  idToDelete,
+}: {
+  characterName: string;
+  itemToMove: itemType;
+  idToDelete: string;
+}) {
+  try {
+    //add to inventory
+    const inboxUpdate = await Player.findOneAndUpdate({ title: characterName }, { $push: { inventory: itemToMove } });
+    //remove from message
+    const deleteItem = await Player.updateOne(
+      { title: characterName, "inbox._id": idToDelete },
+      { $unset: { "inbox.$.attachment": 1 } }
+    );
+    return { msg: "Attachment moved successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+export async function itemAddStats({
+  characterName,
+  itemToEquip,
+  statsToUpdate,
+}: {
+  characterName: string;
+  itemToEquip: itemType;
+  statsToUpdate: string;
+}) {
+  try {
+    const userDocument = await Player.findOne({ title: characterName });
+    await Player.findOneAndUpdate(
+      { title: characterName },
+      { $set: { "str.amount": userDocument[statsToUpdate].amount + itemToEquip.stats[statsToUpdate] } }
+    );
+    return { msg: "Attachment moved successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+export async function equipItem({ characterName, itemToEquip }: { characterName: string; itemToEquip: itemType }) {
+  try {
+    const slots = {
+      leftArm: "Left Hand",
+      rightArm: "Right Hand",
+      head: "Head",
+      chest: "Chest",
+      legs: "Legs",
+      feet: "Feet",
+      gloves: "Gloves",
+      necklace: "Necklace",
+      belt: "Belt",
+      ring: "Ring",
+    };
+    const foundSlot = Object.entries(slots).find(([slot, value]) => value === itemToEquip?.slot);
+    if (foundSlot !== undefined) {
+      //if some item already in slot
+      const userDocument = await Player.findOne({ title: characterName });
+      console.log("🚀 ~ file: playerActions.tsx:705 ~ equipItem ~ userDocument:", userDocument);
+      const userSlot = userDocument.equipedItems[foundSlot[0]];
+      if (userSlot) {
+        const unequipResult = await unequipItem({
+          characterName,
+          itemToUnequip: userSlot,
+        });
+      }
+
+      // place in proper slot
+      const equipItem = await Player.findOneAndUpdate(
+        { title: characterName },
+        { $set: { [`equipedItems.${foundSlot[0]}`]: itemToEquip } }
+      );
+
+      console.log(itemToEquip);
+      // add item stats to player stats
+      itemAddStats({ characterName, itemToEquip, statsToUpdate: "attack.to" });
+      itemAddStats({ characterName, itemToEquip, statsToUpdate: "armor" });
+      itemAddStats({ characterName, itemToEquip, statsToUpdate: "str" });
+      // await Player.findOneAndUpdate(
+      //   { title: characterName },
+      //   { $set: { "str.amount": userDocument.str.amount + itemToEquip.stats.str } }
+      // );
+      // remove from inventory
+      const inboxUpdate = await Player.findOneAndUpdate(
+        { title: characterName },
+        { $pull: { inventory: { _id: itemToEquip?._id } } }
+      );
+    }
+    //add to inventory
+    // const inboxUpdate = await Player.findOneAndUpdate({ title: characterName }, { $set: { `inventory.${itemToMove.}`: itemToMove } });
+    //remove from message
+    // const deleteItem = await Player.updateOne(
+    //   { title: characterName, "inbox._id": idToDelete },
+    //   { $unset: { "inbox.$.attachment": 1 } }
+    // );
+    return { msg: "Attachment moved successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+export async function unequipItem({
+  characterName,
+  itemToUnequip,
+}: {
+  characterName: string;
+  itemToUnequip: itemType;
+}) {
+  try {
+    //add to inventory
+    const inboxUpdate = await Player.findOneAndUpdate(
+      { title: characterName },
+      { $push: { inventory: itemToUnequip } }
+    );
+    // remove from equiped items
+
+    const slots = {
+      leftArm: "Left Hand",
+      rightArm: "Right Hand",
+      head: "Head",
+      chest: "Chest",
+      legs: "Legs",
+      feet: "Feet",
+      gloves: "Gloves",
+      necklace: "Necklace",
+      belt: "Belt",
+      ring: "Ring",
+    };
+    const foundSlot = Object.entries(slots).find(([slot, value]) => value === itemToUnequip?.slot);
+    if (foundSlot !== undefined) {
+      const equipItem = await Player.findOneAndUpdate(
+        { title: characterName },
+        { $set: { [`equipedItems.${foundSlot[0]}`]: null } }
+      );
+    }
+
+    return { msg: "Item unequipped successfully" };
   } catch (error) {
     if (error instanceof Error) {
       redirect(`/errors?error=${error?.message}`);
@@ -757,6 +921,7 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   ) =>
     //Take base dmg, combine with strenght and enemy armor, check if double and critical, subtract healedValue
     {
+      console.log(enemyData.attack);
       let playerDmg =
         damageDoubleOrNot(
           criticaHitOrNot(
@@ -768,10 +933,7 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       playerDmg = playerDmg < 0 ? 0 : playerDmg;
       let enemyDmg =
         damageDoubleOrNot(
-          criticaHitOrNot(
-            playerData.attack + Math.floor(playerData.str.amount / 2) - playerData.armor,
-            enemyCriticalStrike
-          ),
+          criticaHitOrNot(enemyData.attack + Math.floor(enemyData.str / 2) - playerData.armor, enemyCriticalStrike),
           enemyDoubleStrike
         ) - healOrNot(Math.floor(playerData.int.amount / 2), playerhealthRegen);
       enemyDmg = enemyDmg < 0 ? 0 : enemyDmg;

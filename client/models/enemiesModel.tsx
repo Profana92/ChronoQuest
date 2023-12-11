@@ -1,6 +1,7 @@
 import { Schema, model, models } from "mongoose";
 
 const enemiesSchema = new Schema({
+  attack: Number,
   health: Number,
   title: String,
   armor: Number,

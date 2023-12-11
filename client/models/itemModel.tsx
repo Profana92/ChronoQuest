@@ -1,7 +1,8 @@
 import { Schema, model, models } from "mongoose";
 
-const itemsSchema = new Schema({
+export const itemsSchema = new Schema({
   itemName: { type: String, required: true, unique: true },
+  slot: String,
   category: { itemType: String, itemCategory: String },
   rarity: Number,
   origin: String,
