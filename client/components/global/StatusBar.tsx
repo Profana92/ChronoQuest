@@ -13,22 +13,22 @@ export default async function StatusBar() {
     <div className="col-start-2 col-end-3 flex flex-wrap">
       <div className="flex-1 basis-40 flex-shrink-0 p-4 border border-white border-solid flex flex-row justify-start items-center">
         <p>
-          <GiHealthNormal className="inline text-amber-500 text-2xl mr-2" /> HP: {characterData.health.amount}
+          <GiHealthNormal className="inline text-amber-500 text-2xl mr-2" /> HP: {characterData?.health.amount}
         </p>
       </div>
       <div className="flex-1 basis-40 flex-shrink-0 p-4 border border-white border-solid flex flex-row justify-start items-center">
         <p>
-          <GiAxeSword className="inline text-amber-500 text-2xl mr-2" /> AP: {characterData.ap.amount}
+          <GiAxeSword className="inline text-amber-500 text-2xl mr-2" /> AP: {characterData?.ap.amount}
         </p>
       </div>
       <div className="flex-1 flex-shrink-0 basis-40 p-4 border border-white border-solid flex flex-row justify-start items-center">
         <p>
-          <GiTargetArrows className="inline text-amber-500 text-2xl mr-2" /> XP: {characterData.xp}
+          <GiTargetArrows className="inline text-amber-500 text-2xl mr-2" /> XP: {characterData?.xp}
         </p>
       </div>
       <div className="flex-1 basis-40 flex-shrink-0 p-4 border border-white border-solid flex flex-row justify-start items-center">
         <p>
-          <GiGoldBar className="inline text-amber-500 text-2xl mr-2" /> Gold: {characterData.gold}
+          <GiGoldBar className="inline text-amber-500 text-2xl mr-2" /> Gold: {characterData?.gold}
         </p>
       </div>
     </div>

@@ -3,6 +3,7 @@ import Link from "next/link";
 const GameMenu = () => {
   const menuFirstSectionData = [
     { link: "/game/overview", title: "Overview" },
+    { link: "/game/inventory", title: "Inventory" },
     { link: "/game/messages", title: "Messages" },
     { link: "/game/leaderboard", title: "Leaderboard" },
     { link: "/game/arena", title: "Arena" },
@@ -14,14 +15,14 @@ const GameMenu = () => {
     { link: "/game/timeshop", title: "Time Shop" },
   ];
   const menuThirdSectionData = [
-    { link: "/game/stoneage", title: "Stone Age" },
-    { link: "/game/bronzeage", title: "Bronze Age" },
-    { link: "/game/ironage", title: "Iron Age" },
-    { link: "/game/classicaltimes", title: "Classical Times" },
-    { link: "/game/medievaltimes", title: "Medieval Times" },
-    { link: "/game/modernera", title: "Modern Times" },
-    { link: "/game/spacera", title: "Space Era" },
-    { link: "/game/timetravelera", title: "Time Travel Era" },
+    { link: "/game/expeditions/stoneage", title: "Stone Age" },
+    { link: "/game/expeditions/bronzeage", title: "Bronze Age" },
+    { link: "/game/expeditions/ironage", title: "Iron Age" },
+    { link: "/game/expeditions/classicaltimes", title: "Classical Times" },
+    { link: "/game/expeditions/medievaltimes", title: "Medieval Times" },
+    { link: "/game/expeditions/moderntimes", title: "Modern Times" },
+    { link: "/game/expeditions/spaceera", title: "Space Era" },
+    { link: "/game/expeditions/timetravelera", title: "Time Travel Era" },
   ];
   const menuFirstSectionContent = menuFirstSectionData.map((item) => {
     return (
@@ -40,7 +41,7 @@ const GameMenu = () => {
   const menuThirdSectionContent = menuThirdSectionData.map((item) => {
     return (
       <Link key={item.title} href={item.link}>
-        <li>{item.title}</li>
+        <li className="my-2 text-center border border-solid border-white p-1">{item.title}</li>
       </Link>
     );
   });
@@ -53,7 +54,7 @@ const GameMenu = () => {
       </ul>
       <div>
         <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-        <p>Expeditions</p>
+        <p className="border border-solid border-white text-center p-2 text-red-600">Expeditions</p>
         <ul> {menuThirdSectionContent}</ul>
       </div>
     </div>

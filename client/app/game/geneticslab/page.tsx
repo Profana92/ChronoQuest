@@ -11,7 +11,13 @@ const page = async () => {
 
   return (
     <section className="flex h-full justify-center">
-      <div className="w-1/2 grid items-center justify-items-center min-w-[384px]"></div>
+      <div className="w-1/2 grid items-center justify-items-center min-w-[384px]">
+        {characterData?.playerData ? (
+          <CharacterGeneticsUpgrade possibleToBuyPoints={true} characterData={JSON.stringify(characterData)} />
+        ) : (
+          ""
+        )}
+      </div>
       <div className="w-1/2 relative border border-solid border-white">
         <Image
           src={geneticsLab}

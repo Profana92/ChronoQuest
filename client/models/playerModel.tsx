@@ -1,5 +1,7 @@
 import { Schema, model, models } from "mongoose";
 
+import { itemsSchema } from "./itemModel";
+
 const messageSchema = new Schema({
   sender: {
     type: String,
@@ -30,6 +32,19 @@ const playerSchema = new Schema({
   gold: Number,
   inbox: [messageSchema],
   attack: Number,
+  inventory: [itemsSchema],
+  equipedItems: {
+    head: itemsSchema,
+    chest: itemsSchema,
+    leftArm: itemsSchema,
+    rightArm: itemsSchema,
+    legs: itemsSchema,
+    feet: itemsSchema,
+    gloves: itemsSchema,
+    necklace: itemsSchema,
+    belt: itemsSchema,
+    ring: itemsSchema,
+  },
 });
 
 const Player = models.player || model("player", playerSchema);

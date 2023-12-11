@@ -19,13 +19,6 @@ const Game = async () => {
   return (
     <section>
       {characterData?.playerData ? <ActionPointsUpdate playerData={JSON.stringify(characterData)} /> : ""}
-      <div className="flex">
-        {characterData?.playerData ? (
-          <CharacterInfo possibleToBuyPoints={true} characterData={JSON.stringify(characterData)} />
-        ) : (
-          <NewCharacter />
-        )}
-      </div>
     </section>
   );
 };

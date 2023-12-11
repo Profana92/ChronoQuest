@@ -1,7 +1,9 @@
 "use client";
 
+import { moveMessageAttachmentToInventory, removeMessageFromInbox } from "@/actions/playerActions";
+
+import Item from "../global/Item";
 import { inboxMessageType } from "@/types/inboxMessageType";
-import { removeMessageFromInbox } from "@/actions/playerActions";
 import { useRouter } from "next/navigation";
 
 const Message = ({ message, player }: { message: string; player: string }) => {
@@ -11,14 +13,30 @@ const Message = ({ message, player }: { message: string; player: string }) => {
     <div className="border border-solid">
       <p>Sender: {messageObj?.sender}</p>
       <p>Message: {messageObj?.message}</p>
-      {messageObj?.attachment ? <p>attachment: {messageObj?.sender}</p> : ""}
+      {messageObj?.attachment ? <Item itemData={messageObj?.attachment} /> : ""}
+      {messageObj?.attachment ? (
+        <p
+          onClick={async () => {
+            await moveMessageAttachmentToInventory({
+              characterName: player,
+              itemToMove: messageObj.attachment,
+              idToDelete: messageObj._id,
+            });
+            router.refresh();
+          }}
+        >
+          Move item into inventory
+        </p>
+      ) : (
+        ""
+      )}
       <p
         onClick={async () => {
           await removeMessageFromInbox({ characterName: player, idToDelete: messageObj._id });
           router.refresh();
         }}
       >
-        Delete Message
+        Delete message
       </p>
     </div>
   );
