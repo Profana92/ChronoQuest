@@ -683,6 +683,36 @@ export async function moveMessageAttachmentToInventory({
     }
   }
 }
+
+export async function itemRemoveStats({
+  characterName,
+  itemToEquip,
+  statsToUpdate,
+}: {
+  characterName: string;
+  itemToEquip: itemType;
+  statsToUpdate: "str" | "dex" | "int" | "cha" | "spd" | "acc" | "armor" | "attack";
+}) {
+  try {
+    const userDocument = await Player.findOne({ title: characterName });
+    if (statsToUpdate === "armor") {
+      await Player.findOneAndUpdate(
+        { title: characterName },
+        { $set: { [`${statsToUpdate}`]: userDocument[statsToUpdate] - itemToEquip.stats[statsToUpdate] } }
+      );
+      return { msg: "Attachment moved successfully" };
+    }
+    await Player.findOneAndUpdate(
+      { title: characterName },
+      { $set: { [`${statsToUpdate}.amount`]: userDocument[statsToUpdate].amount - itemToEquip.stats[statsToUpdate] } }
+    );
+    return { msg: "Attachment moved successfully" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
 export async function itemAddStats({
   characterName,
   itemToEquip,
@@ -690,13 +720,20 @@ export async function itemAddStats({
 }: {
   characterName: string;
   itemToEquip: itemType;
-  statsToUpdate: string;
+  statsToUpdate: "str" | "dex" | "int" | "cha" | "spd" | "acc" | "armor" | "attack";
 }) {
   try {
     const userDocument = await Player.findOne({ title: characterName });
+    if (statsToUpdate === "armor") {
+      await Player.findOneAndUpdate(
+        { title: characterName },
+        { $set: { [`${statsToUpdate}`]: userDocument[statsToUpdate] + itemToEquip.stats[statsToUpdate] } }
+      );
+      return { msg: "Attachment moved successfully" };
+    }
     await Player.findOneAndUpdate(
       { title: characterName },
-      { $set: { "str.amount": userDocument[statsToUpdate].amount + itemToEquip.stats[statsToUpdate] } }
+      { $set: { [`${statsToUpdate}.amount`]: userDocument[statsToUpdate].amount + itemToEquip.stats[statsToUpdate] } }
     );
     return { msg: "Attachment moved successfully" };
   } catch (error) {
@@ -740,9 +777,10 @@ export async function equipItem({ characterName, itemToEquip }: { characterName:
 
       console.log(itemToEquip);
       // add item stats to player stats
-      itemAddStats({ characterName, itemToEquip, statsToUpdate: "attack.to" });
+      itemAddStats({ characterName, itemToEquip, statsToUpdate: "attack" });
       itemAddStats({ characterName, itemToEquip, statsToUpdate: "armor" });
       itemAddStats({ characterName, itemToEquip, statsToUpdate: "str" });
+
       // await Player.findOneAndUpdate(
       //   { title: characterName },
       //   { $set: { "str.amount": userDocument.str.amount + itemToEquip.stats.str } }

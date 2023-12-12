@@ -15,7 +15,7 @@ export type itemType = {
     spd: number;
     acc: number;
     armor: number;
-    attack: { from: number; to: number };
+    attack: number;
   };
   basisValue: number;
   image: string;
