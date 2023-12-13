@@ -74,13 +74,7 @@ const ItemClient = ({ itemData, characterName }: { itemData: string; characterNa
           <p>Slot: {itemDataObj?.slot}</p>
           <p>Item Level: {itemDataObj?.itemLevel}</p>
           <div className="">
-            {itemDataObj?.stats?.attack ? (
-              <p>
-                Attack: {itemDataObj?.stats?.attack?.from}-{itemDataObj?.stats?.attack?.to}
-              </p>
-            ) : (
-              ""
-            )}
+            {itemDataObj?.stats?.attack ? <p>Attack: {itemDataObj?.stats?.attack}</p> : ""}
             {itemDataObj?.stats?.armor ? <p>Armor: {itemDataObj?.stats?.armor}</p> : ""}
             <p>Strength: {itemDataObj?.stats?.str}</p>
             <p>Dexterity: {itemDataObj?.stats?.dex}</p>

@@ -9,6 +9,7 @@ const page = async () => {
   const session = await getServerSession(authOptions);
   const characterData = (await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player }))
     ?.playerData;
+
   const ItemList = characterData?.inventory.map((item) => (
     <ItemClient itemData={JSON.stringify(item)} key={item?._id} characterName={characterData.title} />
   ));

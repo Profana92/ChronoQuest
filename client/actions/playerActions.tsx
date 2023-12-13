@@ -507,6 +507,7 @@ export async function adminAddNewBasisItem({
   stats,
   basisValue,
   image,
+  slot,
 }: {
   itemName: string;
   category: { itemType: string; itemCategory: string };
@@ -521,10 +522,11 @@ export async function adminAddNewBasisItem({
     spd: number;
     acc: number;
     armor: number;
-    attack: { from: number; to: number };
+    attack: number;
   };
   basisValue: number;
   image: string;
+  slot: string;
 }) {
   try {
     if (await Item.findOne({ itemName: itemName })) throw new Error("Item already exists");
@@ -542,10 +544,11 @@ export async function adminAddNewBasisItem({
         spd: stats.spd,
         acc: stats.acc,
         armor: stats.armor,
-        attack: { from: stats.attack.from, to: stats.attack.to },
+        attack: stats.attack,
       },
       basisValue: basisValue,
       image: image,
+      slot: slot,
     });
     item.save();
     return { msg: "Item successfully created" };
@@ -592,10 +595,7 @@ export async function generateItem({ itemBasis, origin }: { itemBasis: string; o
       basisValue: Math.floor(basisItemData.basisValue * rarityFactors[itemRarity]),
       image: basisItemData.image,
       stats: {
-        attack: {
-          from: Math.floor(basisItemData.stats.attack.from * rarityFactors[itemRarity]),
-          to: Math.floor(basisItemData.stats.attack.to * rarityFactors[itemRarity]),
-        },
+        attack: Math.floor(basisItemData.stats.attack * rarityFactors[itemRarity]),
         str: Math.floor(basisItemData.stats.str * rarityFactors[itemRarity]),
         dex: Math.floor(basisItemData.stats.dex * rarityFactors[itemRarity]),
         int: Math.floor(basisItemData.stats.int * rarityFactors[itemRarity]),

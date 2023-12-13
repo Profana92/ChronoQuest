@@ -67,13 +67,7 @@ const Item = ({ itemData }) => {
           <p>Slot: {itemData?.slot}</p>
           <p>Item Level: {itemData?.itemLevel}</p>
           <div className="">
-            {itemData?.stats?.attack ? (
-              <p>
-                Attack: {itemData?.stats?.attack?.from}-{itemData?.stats?.attack?.to}
-              </p>
-            ) : (
-              ""
-            )}
+            {itemData?.stats?.attack ? <p>Attack: {itemData?.stats?.attack}</p> : ""}
             {itemData?.stats?.armor ? <p>Armor: {itemData?.stats?.armor}</p> : ""}
             <p>Strength: {itemData?.stats?.str}</p>
             <p>Dexterity: {itemData?.stats?.dex}</p>
