@@ -62,3 +62,11 @@ Tasks:
 - Login screen
 
 - If player -> game, if ! -> make player
+
+  //IN THIS GAME //
+  // SPD -> Evade chande
+  // ACC -> Double Dmg Chance
+  // STR -> Block chance
+  // DEX -> Critical Hit
+  // INT -> Health regen after round +
+  // CHA -> SHOP/UPGRADE PRICES

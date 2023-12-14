@@ -56,7 +56,7 @@ const EquippedItemClient = ({ itemData, characterName }: { itemData: string; cha
                 ? "text-blue-600"
                 : itemDataObj?.rarity === 3
                 ? "text-purple-600"
-                : itemData?.rarity === 4
+                : itemDataObj?.rarity === 4
                 ? "text-orange-400"
                 : ""
             }`}
@@ -74,13 +74,7 @@ const EquippedItemClient = ({ itemData, characterName }: { itemData: string; cha
           <p>Slot: {itemDataObj?.slot}</p>
           <p>Item Level: {itemDataObj?.itemLevel}</p>
           <div className="">
-            {itemDataObj?.stats?.attack ? (
-              <p>
-                Attack: {itemDataObj?.stats?.attack?.from}-{itemDataObj?.stats?.attack?.to}
-              </p>
-            ) : (
-              ""
-            )}
+            {itemDataObj?.stats?.attack ? <p>Attack: {itemDataObj?.stats?.attack}</p> : ""}
             {itemDataObj?.stats?.armor ? <p>Armor: {itemDataObj?.stats?.armor}</p> : ""}
             <p>Strength: {itemDataObj?.stats?.str}</p>
             <p>Dexterity: {itemDataObj?.stats?.dex}</p>
