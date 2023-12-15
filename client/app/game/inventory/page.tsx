@@ -1,3 +1,5 @@
+import { actionPointsNaturalRegeneration, healthPointsNaturalRegeneration } from "@/actions/playerActions";
+
 import EquippedItemClient from "@/components/global/EquippedItemClient";
 import Item from "@/components/global/Item";
 import ItemClient from "@/components/global/ItemClient";
@@ -5,19 +7,26 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchUserData } from "@/actions/playerActions";
 import { getServerSession } from "next-auth/next";
 
+export const revalidate = 0;
 const page = async () => {
   const session = await getServerSession(authOptions);
-  const characterData = (await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player }))
-    ?.playerData;
+  const characterData = (await fetchUserData({ id: session?.user?._id }))?.playerData;
+
+  const player = characterData?.title;
+  const intervalPerPoint = 60000;
+  if (player) {
+    healthPointsNaturalRegeneration({ player, intervalPerPoint });
+    actionPointsNaturalRegeneration({ player, intervalPerPoint });
+  }
 
   const ItemList = characterData?.inventory.map((item) => (
     <ItemClient itemData={JSON.stringify(item)} key={item?._id} characterName={characterData.title} />
   ));
 
   return (
-    <div className="flex">
-      <div className="w-1/2">
-        <div className="max-w-[328px] mx-auto">
+    <div className="flex h-full">
+      <div className="w-1/2 h-full">
+        <div className="max-w-[328px] mx-auto h-full flex flex-col justify-center">
           <p className="text-center py-5">Equipment:</p>
           <div className="w-[328px] grid grid-cols-3 gap-5">
             <div className="col-start-2 col-end-3">
@@ -114,7 +123,9 @@ const page = async () => {
           </div>
         </div>
       </div>
-      <div className="w-1/2">{ItemList}</div>
+      <div className="w-1/2 border border-solid border-white flex">
+        <div className="flex gap-5 flex-wrap justify-center items-center self-center"> {ItemList}</div>
+      </div>
     </div>
   );
 };

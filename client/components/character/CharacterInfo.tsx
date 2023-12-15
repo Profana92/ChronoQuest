@@ -4,12 +4,12 @@ import {
   GiAssassinPocket,
   GiAxeSword,
   GiBeamsAura,
+  GiBloodySword,
   GiBullseye,
   GiGoldBar,
   GiHealthPotion,
   GiRank3,
   GiTalk,
-  GiTargetArrows,
   GiWingfoot,
 } from "react-icons/gi";
 
@@ -54,8 +54,8 @@ const CharacterInfo = ({
           <span className="">Armor: {playerData.armor.amount}</span>
         </p>
         <p>
-          <span className="mr-2">XP: {playerData.xp}</span>
-          <GiTargetArrows className="inline text-amber-500 text-2xl" />
+          <span className="mr-2">Attack: {playerData.attack.amount}</span>
+          <GiBloodySword className="inline text-amber-500 text-2xl" />
         </p>
       </div>
       <div className="flex flex-row justify-between ">
