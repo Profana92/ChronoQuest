@@ -51,7 +51,7 @@ const CharacterInfo = ({
       <div className="flex flex-row justify-between ">
         <p>
           <GiAbdominalArmor className="inline text-amber-500 text-2xl mr-2" />
-          <span className="">Armor: {playerData.armor}</span>
+          <span className="">Armor: {playerData.armor.amount}</span>
         </p>
         <p>
           <span className="mr-2">XP: {playerData.xp}</span>
@@ -65,7 +65,7 @@ const CharacterInfo = ({
           maxValue={playerData.health.maxAmount}
           textContent="Health:"
           type="percentage"
-        />{" "}
+        />
       </div>
 
       <div className="flex flex-row">

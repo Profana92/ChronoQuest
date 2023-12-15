@@ -28,7 +28,7 @@ const fightsHistorySchema = new Schema({
 const playerSchema = new Schema({
   health: { amount: Number, maxAmount: Number, lastUpdatedAt: Date },
   title: { type: String },
-  armor: Number,
+  armor: { basisValue: Number, amount: Number },
   companion: { companionName: String, companionType: String, xp: Number, level: Number },
   level: Number,
   xp: Number,
@@ -42,7 +42,7 @@ const playerSchema = new Schema({
   sex: String,
   gold: Number,
   inbox: [messageSchema],
-  attack: Number,
+  attack: { basisValue: Number, amount: Number },
   inventory: [itemsSchema],
   fightsHistory: [fightsHistorySchema],
   equipedItems: {

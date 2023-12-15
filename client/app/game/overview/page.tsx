@@ -12,7 +12,7 @@ import maleImg from "@/public/characters/male.png";
 
 const Game = async () => {
   const session = await getServerSession(authOptions);
-  const characterData = await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player });
+  const characterData = await fetchUserData({ id: session?.user?._id });
 
   return (
     <section className="flex">

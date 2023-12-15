@@ -17,7 +17,7 @@ const page = async () => {
       />
     );
   });
-
+  messagesList.reverse();
   return <section className="p-5">{messagesList}</section>;
 };
 

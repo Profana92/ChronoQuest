@@ -58,8 +58,17 @@ MongoDB: Utilize MongoDB to store game data, character progress, and the multive
 
 Tasks:
 
-- Home Page
-- Login screen
+- Home Page - V
+- Login screen - V
+- Game functions:
+
+  - Natural Regeneration - HP and AP
+  - Fetch user and player Data
+  - Add new Character
+  - Update AP
+  - Update HP
+  - Update XP and LVL
+  - Buy Skill
 
 - If player -> game, if ! -> make player
 
