@@ -10,6 +10,7 @@ import { getServerSession } from "next-auth";
 import { itemType } from "@/types/itemType";
 import { redirect } from "next/navigation";
 
+// Levels table, needed for a character to level up
 const levelTable = [
   0, 100, 200, 400, 800, 1500, 2600, 4200, 6400, 9300, 13000, 17600, 23200, 29900, 37800, 47000, 57600, 69700, 83400,
   98800, 116000, 135100, 156200, 179400, 204800, 232500, 262600, 295200, 330400, 368300, 409000, 452600, 499200, 548900,
@@ -21,9 +22,11 @@ const levelTable = [
   15219400, 15694800,
 ];
 
-export async function fetchUserData({ id }: { id: string; playerName: string }) {
+export async function fetchUserData({ id }: { id: string }) {
   try {
+    // Fetch user data
     const userData = await User.findOne({ _id: id });
+    // Fetch player character data
     const playerData = await Player.findOne({ title: userData.player });
     return { msg: "Player sucessfully fetched", userData, playerData };
   } catch (error) {
@@ -35,32 +38,35 @@ export async function fetchUserData({ id }: { id: string; playerName: string }) 
 
 export async function addNewCharacter({ name, sex }: { name: string; sex: string }) {
   try {
+    // Check if player already exists, if yet throw error and redirect
     const duplicate = await Player.findOne({ title: name });
     if (duplicate) throw new Error("Character name already taken, please try again.");
+    // Assign a player name to user data
     const session = await getServerSession(authOptions);
-    await User.findOne({ _id: session?.user?._id });
     await User.findByIdAndUpdate(session?.user?._id, {
       player: name,
     });
+    // Create new player and save it in DB
     const playerInPlayers = new Player({
-      armor: 0,
+      armor: { basisValue: 0, amount: 0 },
       title: name,
       health: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
       companion: { companionName: "none", companionType: "none", xp: 0, level: 1 },
       level: 1,
       xp: 0,
-      str: { amount: 5, maxAmount: 10 },
-      dex: { amount: 5, maxAmount: 10 },
-      int: { amount: 5, maxAmount: 10 },
-      cha: { amount: 5, maxAmount: 10 },
-      spd: { amount: 5, maxAmount: 10 },
-      acc: { amount: 5, maxAmount: 10 },
+      str: { basisValue: 5, amount: 5, maxAmount: 10 },
+      dex: { basisValue: 5, amount: 5, maxAmount: 10 },
+      int: { basisValue: 5, amount: 5, maxAmount: 10 },
+      cha: { basisValue: 5, amount: 5, maxAmount: 10 },
+      spd: { basisValue: 5, amount: 5, maxAmount: 10 },
+      acc: { basisValue: 5, amount: 5, maxAmount: 10 },
       ap: { amount: 100, maxAmount: 100, lastUpdatedAt: Date.now() },
       sex: sex,
       gold: 10,
       inbox: [],
-      attack: 1,
+      attack: { basisValue: 5, amount: 5 },
       inventory: [],
+      fightsHistory: [],
       equipedItems: {
         head: null,
         chest: null,
@@ -91,9 +97,9 @@ export async function actionPointsNaturalRegeneration({
   intervalPerPoint: number;
 }) {
   try {
+    // get player AP amount, maxAmount and lastUpdatedAt values from DB
     const { amount, maxAmount, lastUpdatedAt } = (await Player.findOne({ title: player })).ap;
-
-    // if current ap amount >=maxAmount update time
+    // if current AP amount >= maxAmount set AP to maxAmount, to prevent a player from having more than maxAmount of AP
     if (amount >= maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -106,14 +112,13 @@ export async function actionPointsNaturalRegeneration({
       );
       return;
     }
-
     //calculate time difference from last update
     const timeDifference = +new Date() - lastUpdatedAt;
     //calculate action points to add
     const pointsToAdd = timeDifference / intervalPerPoint;
     //calculate pointstoUpdate, if amount + points>100, then return 100 as it is max ap, if not return actual value.
     const pointsToUpdate = amount + pointsToAdd >= maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
-
+    // if it should update then update, otherwise do nothing
     if (timeDifference >= intervalPerPoint && amount <= maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -125,7 +130,6 @@ export async function actionPointsNaturalRegeneration({
         }
       );
     }
-
     return { msg: "Player AP updated" };
   } catch (error) {
     if (error instanceof Error) {
@@ -142,8 +146,9 @@ export async function healthPointsNaturalRegeneration({
   intervalPerPoint: number;
 }) {
   try {
+    // get player Health amount, maxAmount and lastUpdatedAt values from DB
     const { amount, maxAmount, lastUpdatedAt } = (await Player.findOne({ title: player })).health;
-    //make sure it is never lower than 0
+    // if amount < 0 then set to 0 and update lastUpdateAt to prevent drop hp belove 0
     if (amount < 0) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -155,6 +160,8 @@ export async function healthPointsNaturalRegeneration({
         }
       );
     }
+
+    // if amount > maxAmount then set amount as maxAmount, that should ensure that amount can never exceed maxAmount
     if (amount > maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -165,17 +172,17 @@ export async function healthPointsNaturalRegeneration({
           },
         }
       );
-      return;
+      return { msg: "Player Health updated" };
     }
 
     //calculate time difference from last update
     const timeDifference = +new Date() - lastUpdatedAt;
     //calculate action points to add
     const pointsToAdd = timeDifference / intervalPerPoint;
-    //calculate pointstoUpdate, if amount + points>100, then return maxAmount, if not return actual value.
+    //calculate pointstoUpdate, if amount + points>100, then return maxAmount, if not return actual value
     const pointsToUpdate = amount + pointsToAdd > maxAmount ? maxAmount : Math.round(amount + pointsToAdd);
-    //update db
-    if (amount + pointsToAdd <= maxAmount) {
+    // if amount + pointsToAdd <= maxAmount update db, if the calculated number exceeds maxAmount do nothing
+    if (timeDifference >= intervalPerPoint && amount + pointsToAdd <= maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
         {
@@ -197,9 +204,10 @@ export async function healthPointsNaturalRegeneration({
 
 export async function updateHealthPoints({ player, valueToRecover = 0 }: { player: string; valueToRecover: number }) {
   try {
+    // get player Health amount, maxAmount and lastUpdatedAt values from DB
     const { amount, maxAmount } = (await Player.findOne({ title: player })).health;
 
-    //Prevent HP from falling belove 0
+    // if amount + valueToRecover < 0 update to prevent HP from falling below 0
     if (amount + valueToRecover < 0) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -210,11 +218,23 @@ export async function updateHealthPoints({ player, valueToRecover = 0 }: { playe
           },
         }
       );
-
-      return;
+      return { msg: `Player Health set to 0` };
+    }
+    // if amount + valueToRecover > maxAmount update to prevent HP from going above maxAmount
+    if (amount + valueToRecover > maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            "health.amount": maxAmount,
+            "health.lastUpdatedAt": new Date(),
+          },
+        }
+      );
+      return { msg: `Player Health set to maximal amount` };
     }
 
-    //if current hP + valueToRecover is even or lesser than maxAmount, set that amount to maxAmount
+    //if current Health + valueToRecover is even or lesser than maxAmount, set that db amount to amount + valueToRecover
     if (amount + valueToRecover <= maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -280,9 +300,10 @@ export async function updateActionPoints({ player, valueToRecover = 0 }: { playe
 
 export async function updateXpAndLevel({ player, expirienceGain = 0 }: { player: string; expirienceGain: number }) {
   try {
+    // get player data
     const charactedData = await Player.findOne({ title: player });
     const expiriencePoints = charactedData.xp;
-    //if expirience loss drops exp below zero then exp=0 and level=1
+    //if expirience loss drops exp below zero then exp=0 and level=1 and return
     if (expiriencePoints + expirienceGain <= 0) {
       const newAmount = await Player.updateOne(
         { title: player },
@@ -377,7 +398,7 @@ export async function updateXpAndLevel({ player, expirienceGain = 0 }: { player:
         },
       }
     );
-
+    recalculateStatsOnItemEquip(player);
     return { msg: "Player XP and Level updated" };
   } catch (error) {
     if (error instanceof Error) {
@@ -396,40 +417,44 @@ export async function updateStats({
   pointsGain: number;
 }) {
   try {
+    // get player data
     const charactedData = await Player.findOne({ title: player });
-    if (charactedData[statsToUpdate].amount + pointsGain < 1) {
+    // if actual stat amount + pointsGain < 1 set to 1, as it is minimal value
+    if (charactedData[statsToUpdate].basisValue + pointsGain < 1) {
       const newAmount = await Player.updateOne(
         { title: player },
         {
           $set: {
-            [`${statsToUpdate}.amount`]: 1,
-          },
-        }
-      );
-      return;
-    }
-    if (charactedData[statsToUpdate].amount + pointsGain > charactedData[statsToUpdate].maxAmount) {
-      const newAmount = await Player.updateOne(
-        { title: player },
-        {
-          $set: {
-            [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].maxAmount,
+            [`${statsToUpdate}.basisValue`]: 1,
           },
         }
       );
       return;
     }
 
+    // if actual stat amount + pointsGain > actual stat maxAmount set it to maxAmount, to prevent exceeding it
+    if (charactedData[statsToUpdate].basisValue + pointsGain > charactedData[statsToUpdate].maxAmount) {
+      const newAmount = await Player.updateOne(
+        { title: player },
+        {
+          $set: {
+            [`${statsToUpdate}.basisValue`]: charactedData[statsToUpdate].maxAmount,
+          },
+        }
+      );
+      return;
+    }
+    // if none of above apply, update but pointsGain amount.
     const newAmount = await Player.updateOne(
       { title: player },
       {
         $set: {
-          [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].amount + pointsGain,
+          [`${statsToUpdate}.basisValue`]: charactedData[statsToUpdate].basisValue + pointsGain,
         },
       }
     );
 
-    return { msg: "Player XP and Level updated" };
+    return { msg: `Player stat ${statsToUpdate} updated` };
   } catch (error) {
     if (error instanceof Error) {
       redirect(`/errors?error=${error?.message}`);
@@ -448,15 +473,18 @@ export async function buySkill({
   pointsGain: number;
 }) {
   try {
+    // Get player data
     const charactedData = await Player.findOne({ title: player });
-    if (charactedData.gold - skillCost * charactedData[statsToUpdate].amount < 0)
+    // Check if enough gold, if not do nothing
+    if (charactedData.gold - skillCost * charactedData[statsToUpdate].basisValue < 0)
       return { msg: "Player skill not updated. Not enough gold!" };
-    if (charactedData[statsToUpdate].amount + pointsGain > charactedData[statsToUpdate].maxAmount) {
+    // Check if stat amount + pointsGain > maxAmount, if yes trim it to MaxAmount.
+    if (charactedData[statsToUpdate].basisValue + pointsGain > charactedData[statsToUpdate].maxAmount) {
       const newAmount = await Player.updateOne(
         { title: player },
         {
           $set: {
-            [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].maxAmount,
+            [`${statsToUpdate}.basisValue`]: charactedData[statsToUpdate].maxAmount,
           },
         }
       );
@@ -466,16 +494,16 @@ export async function buySkill({
       { title: player },
       {
         $set: {
-          gold: charactedData.gold - skillCost * charactedData[statsToUpdate].amount,
+          gold: charactedData.gold - skillCost * charactedData[statsToUpdate].basisValue,
         },
       }
     );
-    if (charactedData[statsToUpdate].amount + pointsGain < 1) {
+    if (charactedData[statsToUpdate].basisValue + pointsGain < 1) {
       const newAmount = await Player.updateOne(
         { title: player },
         {
           $set: {
-            [`${statsToUpdate}.amount`]: 1,
+            [`${statsToUpdate}.basisValue`]: 1,
           },
         }
       );
@@ -486,12 +514,75 @@ export async function buySkill({
       { title: player },
       {
         $set: {
-          [`${statsToUpdate}.amount`]: charactedData[statsToUpdate].amount + pointsGain,
+          [`${statsToUpdate}.basisValue`]: charactedData[statsToUpdate].basisValue + pointsGain,
+        },
+      }
+    );
+    recalculateStatsOnItemEquip(player);
+    return { msg: "Player Skill and Gold updated" };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
+}
+
+export async function recalculateStatsOnItemEquip(player: string) {
+  try {
+    // Get player data
+    const charactedData = await Player.findOne({ title: player });
+
+    let equipedItemsArray = Object.entries(charactedData.equipedItems);
+    // Reset value
+    const resetAmount = await Player.updateOne(
+      { title: player },
+      {
+        $set: {
+          "armor.amount": charactedData.armor.basisValue,
+          "attack.amount": charactedData.attack.basisValue,
+          "str.amount": charactedData.str.basisValue,
+          "dex.amount": charactedData.dex.basisValue,
+          "int.amount": charactedData.int.basisValue,
+          "cha.amount": charactedData.cha.basisValue,
+          "spd.amount": charactedData.spd.basisValue,
+          "acc.amount": charactedData.acc.basisValue,
         },
       }
     );
 
-    return { msg: "Player Gold updated" };
+    for (const item of equipedItemsArray) {
+      if (item[1] !== null) {
+        let statsArray = Object.entries(item[1].stats);
+
+        for (const stats of statsArray) {
+          // Recalculate and update, if armor || attack just add armor or attack stat to basisValue, if any other stat prevent going above maxValue
+          if (stats[0] === "armor" || stats[0] === "attack") {
+            const newAmount = await Player.updateOne(
+              { title: player },
+              {
+                $set: {
+                  [`${stats[0]}.amount`]: charactedData[stats[0]].basisValue + stats[1],
+                },
+              }
+            );
+          } else {
+            const newAmount = await Player.updateOne(
+              { title: player },
+              {
+                $set: {
+                  [`${stats[0]}.amount`]:
+                    charactedData[stats[0]].basisValue + stats[1] >= charactedData[stats[0]].maxAmount
+                      ? charactedData[stats[0]].maxAmount
+                      : charactedData[stats[0]].basisValue + stats[1],
+                },
+              }
+            );
+          }
+        }
+      }
+    }
+
+    return { msg: "Player Skill and Gold updated" };
   } catch (error) {
     if (error instanceof Error) {
       redirect(`/errors?error=${error?.message}`);
@@ -760,7 +851,6 @@ export async function equipItem({ characterName, itemToEquip }: { characterName:
     if (foundSlot !== undefined) {
       //if some item already in slot
       const userDocument = await Player.findOne({ title: characterName });
-      console.log("🚀 ~ file: playerActions.tsx:705 ~ equipItem ~ userDocument:", userDocument);
       const userSlot = userDocument.equipedItems[foundSlot[0]];
       if (userSlot) {
         const unequipResult = await unequipItem({
@@ -775,12 +865,8 @@ export async function equipItem({ characterName, itemToEquip }: { characterName:
         { $set: { [`equipedItems.${foundSlot[0]}`]: itemToEquip } }
       );
 
-      console.log(itemToEquip);
       // add item stats to player stats
-      itemAddStats({ characterName, itemToEquip, statsToUpdate: "attack" });
-      itemAddStats({ characterName, itemToEquip, statsToUpdate: "armor" });
-      itemAddStats({ characterName, itemToEquip, statsToUpdate: "str" });
-
+      recalculateStatsOnItemEquip(characterName);
       // await Player.findOneAndUpdate(
       //   { title: characterName },
       //   { $set: { "str.amount": userDocument.str.amount + itemToEquip.stats.str } }
@@ -791,13 +877,7 @@ export async function equipItem({ characterName, itemToEquip }: { characterName:
         { $pull: { inventory: { _id: itemToEquip?._id } } }
       );
     }
-    //add to inventory
-    // const inboxUpdate = await Player.findOneAndUpdate({ title: characterName }, { $set: { `inventory.${itemToMove.}`: itemToMove } });
-    //remove from message
-    // const deleteItem = await Player.updateOne(
-    //   { title: characterName, "inbox._id": idToDelete },
-    //   { $unset: { "inbox.$.attachment": 1 } }
-    // );
+
     return { msg: "Attachment moved successfully" };
   } catch (error) {
     if (error instanceof Error) {
@@ -839,7 +919,7 @@ export async function unequipItem({
         { $set: { [`equipedItems.${foundSlot[0]}`]: null } }
       );
     }
-
+    recalculateStatsOnItemEquip(characterName);
     return { msg: "Item unequipped successfully" };
   } catch (error) {
     if (error instanceof Error) {
@@ -848,6 +928,7 @@ export async function unequipItem({
   }
 }
 export async function triggerBattle({ player, enemy }: { player: string; enemy: string }) {
+  // Get user and playerData from DB
   const playerData = await Player.findOne({ title: player });
   const enemyData = await Enemies.findOne({ title: enemy });
 
@@ -959,11 +1040,10 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   ) =>
     //Take base dmg, combine with strenght and enemy armor, check if double and critical, subtract healedValue
     {
-      console.log(enemyData.attack);
       let playerDmg =
         damageDoubleOrNot(
           criticaHitOrNot(
-            playerData.attack + Math.floor(playerData.str.amount / 2) - enemyData.armor,
+            playerData.attack.amount + Math.floor(playerData.str.amount / 2) - enemyData.armor / 5,
             playerCriticalStrike
           ),
           playerDoubleStrike
@@ -971,12 +1051,15 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       playerDmg = playerDmg < 0 ? 0 : playerDmg;
       let enemyDmg =
         damageDoubleOrNot(
-          criticaHitOrNot(enemyData.attack + Math.floor(enemyData.str / 2) - playerData.armor, enemyCriticalStrike),
+          criticaHitOrNot(
+            enemyData.attack + Math.floor(enemyData.str / 2) - playerData.armor.amount / 5,
+            enemyCriticalStrike
+          ),
           enemyDoubleStrike
         ) - healOrNot(Math.floor(playerData.int.amount / 2), playerhealthRegen);
       enemyDmg = enemyDmg < 0 ? 0 : enemyDmg;
 
-      const returnedValue = { playerDmg: Math.floor(playerDmg / 10), enemyDmg: Math.floor(enemyDmg / 10) };
+      const returnedValue = { playerDmg: Math.floor(playerDmg), enemyDmg: Math.floor(enemyDmg) };
 
       if (playerEvaded) returnedValue.enemyDmg = 0;
       if (enemyEvaded) returnedValue.playerDmg = 0;
@@ -1046,7 +1129,6 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
   } else fightResult.playerWon = false;
   if (playerHpBeforeFight < 0) playerHpBeforeFight = 0;
 
-  updateXpAndLevel({ player, expirienceGain: enemyData.xpReward });
   const inboxUpdate = await Player.findOneAndUpdate(
     { title: player },
     {
@@ -1056,24 +1138,298 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       },
     }
   );
-  const item = enemyData.possibleLoot[Math.floor(Math.random() * enemyData.possibleLoot.length)];
-  const message = `You have successfully defeated enemy: ${enemyData.title}. By doing that, you got ${enemyData.goldReward} Gold and ${item}`;
+  if (fightResult.playerWon === true) {
+    updateXpAndLevel({ player, expirienceGain: enemyData.xpReward });
+    const item = enemyData.possibleLoot[Math.floor(Math.random() * enemyData.possibleLoot.length)];
+    const message = `You have successfully defeated enemy: ${enemyData.title}. By doing that, you got ${enemyData.goldReward} Gold and ${item}`;
 
-  if (fightResult.playerWon)
     addMessageToInbox({
       message: message,
       recipient: player,
       itemBasis: item,
       sender: enemyData.title,
     });
+<<<<<<< HEAD
   console.log(fightResult);
   //IN THIS GAME //
+=======
+  }
+
+>>>>>>> 251f2ad702175f047894bb43b7c6b96e6c65b355
   // SPD -> Evade chande
   // ACC -> Double Dmg Chance
   // STR -> Block chance
   // DEX -> Critical Hit
   // INT -> Health regen after round +
   // CHA -> SHOP/UPGRADE PRICES
+}
+
+export async function triggerBattlewithPlayer({ player, enemy }: { player: string; enemy: string }) {
+  // Get user and playerData from DB
+  const playerData = await Player.findOne({ title: player });
+  const enemyData = await Player.findOne({ title: enemy });
+
+  //Check AP amount, to allow fight
+  const apUpdate = await updateActionPoints({ player, valueToRecover: -3 });
+  if (apUpdate?.msg === "Action points too low.") return apUpdate;
+
+  const calcEvadeChances = () => {
+    let playerEvadeChance =
+      (playerData.spd.amount - enemyData.spd.amount) /
+      (playerData.spd.maxAmount >= enemyData.spd.maxAmount ? playerData.spd.maxAmount : enemyData.spd.maxAmount);
+    let enemyEvadeChance =
+      (enemyData.spd.amount - playerData.spd.amount) /
+      (playerData.spd.maxAmount >= enemyData.spd.maxAmount ? playerData.spd.maxAmount : enemyData.spd.maxAmount);
+    playerEvadeChance = playerEvadeChance <= 0 ? 0 : playerEvadeChance >= 0.4 ? 0.4 : playerEvadeChance;
+    enemyEvadeChance = enemyEvadeChance <= 0 ? 0 : enemyEvadeChance >= 0.4 ? 0.4 : enemyEvadeChance;
+    return { playerEvadeChance: +playerEvadeChance.toFixed(2), enemyEvadeChance: +enemyEvadeChance.toFixed(2) };
+  };
+
+  const calcBlockChance = () => {
+    let playerBlockChance =
+      (playerData.str.amount - enemyData.str.amount) /
+      (playerData.str.maxAmount >= enemyData.str.maxAmount ? playerData.str.maxAmount : enemyData.str.maxAmount);
+    let enemyBlockChance =
+      (enemyData.str.amount - playerData.str.amount) /
+      (playerData.str.maxAmount >= enemyData.str.maxAmount ? playerData.str.maxAmount : enemyData.str.maxAmount);
+    playerBlockChance = playerBlockChance <= 0 ? 0 : playerBlockChance >= 0.4 ? 0.4 : playerBlockChance;
+    enemyBlockChance = enemyBlockChance <= 0 ? 0 : enemyBlockChance >= 0.4 ? 0.4 : enemyBlockChance;
+    return { playerBlockChance: +playerBlockChance.toFixed(2), enemyBlockChance: +enemyBlockChance.toFixed(2) };
+  };
+
+  const calcDoubleStrikeChance = () => {
+    let playerDoubleStrikeChance =
+      (playerData.acc.amount - enemyData.acc.amount) /
+      (playerData.acc.maxAmount >= enemyData.acc.maxAmount ? playerData.acc.maxAmount : enemyData.acc.maxAmount);
+    let enemyDoubleStrikeChance =
+      (enemyData.acc.amount - playerData.acc.amount) /
+      (playerData.acc.maxAmount >= enemyData.acc.maxAmount ? playerData.acc.maxAmount : enemyData.acc.maxAmount);
+    playerDoubleStrikeChance =
+      playerDoubleStrikeChance <= 0 ? 0 : playerDoubleStrikeChance >= 1 ? 1 : playerDoubleStrikeChance;
+    enemyDoubleStrikeChance =
+      enemyDoubleStrikeChance <= 0 ? 0 : enemyDoubleStrikeChance >= 1 ? 1 : enemyDoubleStrikeChance;
+    return {
+      playerDoubleStrikeChance: +playerDoubleStrikeChance.toFixed(2),
+      enemyDoubleStrikeChance: +enemyDoubleStrikeChance.toFixed(2),
+    };
+  };
+
+  const calcCriticalHitChance = () => {
+    let playerCriticalHitChance =
+      (playerData.dex.amount - enemyData.dex.amount) /
+      (playerData.dex.maxAmount >= enemyData.dex.maxAmount ? playerData.dex.maxAmount : enemyData.dex.maxAmount);
+    let enemyCriticalHitChance =
+      (enemyData.dex.amount - playerData.dex.amount) /
+      (playerData.dex.maxAmount >= enemyData.dex.maxAmount ? playerData.dex.maxAmount : enemyData.dex.maxAmount);
+    playerCriticalHitChance =
+      playerCriticalHitChance <= 0 ? 0 : playerCriticalHitChance >= 1 ? 1 : playerCriticalHitChance;
+    enemyCriticalHitChance = enemyCriticalHitChance <= 0 ? 0 : enemyCriticalHitChance >= 1 ? 1 : enemyCriticalHitChance;
+    return {
+      playerCriticalHitChance: +playerCriticalHitChance.toFixed(2),
+      enemyCriticalHitChance: +enemyCriticalHitChance.toFixed(2),
+    };
+  };
+
+  const calcHealthRegenChance = () => {
+    let playerhealthRegenChance =
+      (playerData.int.amount - enemyData.int.amount) /
+      (playerData.dex.maxAmount >= enemyData.int.maxAmount ? playerData.int.maxAmount : enemyData.int.maxAmount);
+    let enemyhealthRegenChance =
+      (enemyData.int.amount - playerData.int.amount) /
+      (playerData.int.maxAmount >= enemyData.int.maxAmount ? playerData.int.maxAmount : enemyData.int.maxAmount);
+    playerhealthRegenChance =
+      playerhealthRegenChance <= 0 ? 0 : playerhealthRegenChance >= 1 ? 1 : playerhealthRegenChance;
+    enemyhealthRegenChance = enemyhealthRegenChance <= 0 ? 0 : enemyhealthRegenChance >= 1 ? 1 : enemyhealthRegenChance;
+    return {
+      playerhealthRegenChance: +playerhealthRegenChance.toFixed(2),
+      enemyhealthRegenChance: +enemyhealthRegenChance.toFixed(2),
+    };
+  };
+  const trueOrNotBasedOnProbability = (percentageChanceOfTrue: number) => {
+    return Math.random() < percentageChanceOfTrue;
+  };
+
+  const damageDoubleOrNot = (valueToBeDoubled: number, shouldBeDoubled: boolean) => {
+    if (shouldBeDoubled) {
+      return 2 * valueToBeDoubled;
+    } else {
+      return valueToBeDoubled;
+    }
+  };
+
+  const criticaHitOrNot = (valueToBeTripled: number, shouldBeTripled: boolean) => {
+    if (shouldBeTripled) {
+      return 3 * valueToBeTripled;
+    } else {
+      return valueToBeTripled;
+    }
+  };
+
+  const healOrNot = (valueToBeHealed: number, shouldBeHealed: boolean) => {
+    if (shouldBeHealed) {
+      return 3 * valueToBeHealed;
+    } else {
+      return valueToBeHealed;
+    }
+  };
+
+  const bothEvadeChances = calcEvadeChances();
+  const bothBlockChances = calcBlockChance();
+  const bothDoubleDmgChances = calcDoubleStrikeChance();
+  const bothCriticalHitChances = calcCriticalHitChance();
+
+  const bothHealthRegenChance = calcHealthRegenChance();
+
+  const fightResult: { playerWon: boolean; rounds: { playerWonRound: boolean }[] } = { playerWon: false, rounds: [] };
+  let playerHpBeforeFight = playerData.health.amount;
+  let enemyHpBeforeFight = enemyData.health.amount;
+  const calculateBothDmg = (
+    playerDoubleStrike: boolean,
+    enemyDoubleStrike: boolean,
+    playerCriticalStrike: boolean,
+    enemyCriticalStrike: boolean,
+    playerhealthRegen: boolean,
+    enemyhealthRegen: boolean,
+    playerEvaded: boolean,
+    enemyEvaded: boolean,
+    playerBlocked: boolean,
+    enemyBlocked: boolean
+  ) =>
+    //Take base dmg, combine with strenght and enemy armor, check if double and critical, subtract healedValue
+    {
+      let playerDmg =
+        damageDoubleOrNot(
+          criticaHitOrNot(
+            playerData.attack.amount + Math.floor(playerData.str.amount / 2) - enemyData.armor.amount / 5,
+            playerCriticalStrike
+          ),
+          playerDoubleStrike
+        ) - healOrNot(Math.floor(enemyData.int.amount / 2), enemyhealthRegen);
+      playerDmg = playerDmg < 0 ? 0 : playerDmg;
+      let enemyDmg =
+        damageDoubleOrNot(
+          criticaHitOrNot(
+            enemyData.attack.amount + Math.floor(enemyData.str.amount / 2) - playerData.armor.amount / 5,
+            enemyCriticalStrike
+          ),
+          enemyDoubleStrike
+        ) - healOrNot(Math.floor(playerData.int.amount / 2), playerhealthRegen);
+      enemyDmg = enemyDmg < 0 ? 0 : enemyDmg;
+
+      const returnedValue = { playerDmg: Math.floor(playerDmg), enemyDmg: Math.floor(enemyDmg) };
+
+      if (playerEvaded) returnedValue.enemyDmg = 0;
+      if (enemyEvaded) returnedValue.playerDmg = 0;
+      if (playerBlocked) returnedValue.enemyDmg = 0;
+      if (enemyBlocked) returnedValue.playerDmg = 0;
+      return returnedValue;
+    };
+
+  for (let i = 0; i < 10; i++) {
+    const playerEvaded = trueOrNotBasedOnProbability(bothEvadeChances.playerEvadeChance);
+    const enemyEvaded = trueOrNotBasedOnProbability(bothEvadeChances.enemyEvadeChance);
+    const playerBlocked = trueOrNotBasedOnProbability(bothBlockChances.playerBlockChance);
+    const enemyBlocked = trueOrNotBasedOnProbability(bothBlockChances.enemyBlockChance);
+    const playerDoubleStrike = trueOrNotBasedOnProbability(bothDoubleDmgChances.playerDoubleStrikeChance);
+    const enemyDoubleStrike = trueOrNotBasedOnProbability(bothDoubleDmgChances.enemyDoubleStrikeChance);
+    const playerCriticalStrike = trueOrNotBasedOnProbability(bothCriticalHitChances.playerCriticalHitChance);
+    const enemyCriticalStrike = trueOrNotBasedOnProbability(bothCriticalHitChances.enemyCriticalHitChance);
+    const playerhealthRegen = trueOrNotBasedOnProbability(bothHealthRegenChance.playerhealthRegenChance);
+    const enemyhealthRegen = trueOrNotBasedOnProbability(bothHealthRegenChance.enemyhealthRegenChance);
+    const { playerDmg, enemyDmg } = calculateBothDmg(
+      playerDoubleStrike,
+      enemyDoubleStrike,
+      playerCriticalStrike,
+      enemyCriticalStrike,
+      playerhealthRegen,
+      enemyhealthRegen,
+      playerEvaded,
+      enemyEvaded,
+      playerBlocked,
+      enemyBlocked
+    );
+
+    const roundSummary = {
+      playerHpLoss: enemyDmg,
+      enemyHpLoss: playerDmg,
+      playerWonRound: playerDmg >= enemyDmg ? true : false,
+    };
+
+    fightResult.rounds.push(roundSummary);
+    playerHpBeforeFight -= enemyDmg;
+    enemyHpBeforeFight -= playerDmg;
+  }
+
+  const numberOfPlayerWonRounds = fightResult.rounds.reduce((acc, cur) => {
+    if (cur.playerWonRound) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+  const numberOfEnemyWonRounds = fightResult.rounds.reduce((acc, cur) => {
+    if (!cur.playerWonRound) {
+      acc++;
+    }
+    return acc;
+  }, 0);
+
+  if (numberOfPlayerWonRounds >= numberOfEnemyWonRounds) {
+    fightResult.playerWon = true;
+  } else fightResult.playerWon = false;
+  if (playerHpBeforeFight <= 0) {
+    fightResult.playerWon = false;
+  }
+  if (enemyHpBeforeFight <= 0) {
+    fightResult.playerWon = true;
+  }
+  if (playerHpBeforeFight < 0) playerHpBeforeFight = 0;
+  if (enemyHpBeforeFight < 0) enemyHpBeforeFight = 0;
+  const playerGoldUpdate = await Player.findOneAndUpdate(
+    { title: player },
+    {
+      $set: {
+        "health.amount": playerHpBeforeFight,
+        gold: fightResult.playerWon ? Math.floor(playerData?.gold + (enemyData.gold * 3) / 10) : playerData?.gold,
+      },
+    }
+  );
+  const enemyGoldUpdate = await Player.findOneAndUpdate(
+    { title: enemy },
+    {
+      $set: {
+        gold: fightResult.playerWon ? Math.floor(enemyData?.gold - (enemyData?.gold * 3) / 10) : enemyData?.gold,
+      },
+    }
+  );
+  console.log(fightResult);
+  if (fightResult.playerWon === true) {
+    const message = `You have successfully defeated enemy: ${enemyData.title}. By doing that, you got ${Math.floor(
+      (enemyData.gold * 3) / 10
+    )} Gold`;
+
+    addMessageToInbox({
+      message: message,
+      recipient: player,
+      itemBasis: null,
+      sender: "Arena",
+    });
+  }
+}
+export async function LeaderBoardDataFetch() {
+  try {
+    //add to inventory
+    const fetchTopUsers = await Player.find().sort({ xp: -1 }).limit(100);
+    console.log("🚀 ~ file: playerActions.tsx:1172 ~ LeaderBoardDataFetch ~ fetchTopUsers:", fetchTopUsers);
+    const topUsers = fetchTopUsers.map((player) => {
+      return { playerName: player.title, playerLevel: player.level };
+    });
+    console.log(topUsers);
+    return { msg: "Top Players fetched successfully", topPlayers: topUsers };
+  } catch (error) {
+    if (error instanceof Error) {
+      redirect(`/errors?error=${error?.message}`);
+    }
+  }
 }
 
 // export async function addCompanion({ player, companion }: { player: string; companion: string }) {

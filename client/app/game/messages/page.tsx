@@ -1,3 +1,5 @@
+import { actionPointsNaturalRegeneration, healthPointsNaturalRegeneration } from "@/actions/playerActions";
+
 import Message from "@/components/character/Message";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { fetchUserData } from "@/actions/playerActions";
@@ -6,7 +8,14 @@ import { inboxMessageType } from "@/types/inboxMessageType";
 
 const page = async () => {
   const session = await getServerSession(authOptions);
-  const characterData = await fetchUserData({ id: session?.user?._id, playerName: session?.user?.player });
+  const characterData = await fetchUserData({ id: session?.user?._id });
+  const player = characterData?.playerData?.title;
+  const intervalPerPoint = 60000;
+  if (characterData?.playerData) {
+    healthPointsNaturalRegeneration({ player, intervalPerPoint });
+    actionPointsNaturalRegeneration({ player, intervalPerPoint });
+  }
+
   const messages = characterData?.playerData?.inbox;
   const messagesList = messages.map((message: inboxMessageType) => {
     return (
@@ -17,7 +26,7 @@ const page = async () => {
       />
     );
   });
-
+  messagesList.reverse();
   return <section className="p-5">{messagesList}</section>;
 };
 

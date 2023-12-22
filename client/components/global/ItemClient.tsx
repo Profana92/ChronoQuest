@@ -31,7 +31,7 @@ const ItemClient = ({ itemData, characterName }: { itemData: string; characterNa
         />
 
         <div
-          className={`w-[200%] min-h-full left-full absolute p-5 bg-Tetriary hidden group-hover:flex border border-solid flex-col ${
+          className={`w-[200%] min-h-full left-full absolute z-10 p-5 bg-Tetriary hidden group-hover:flex border border-solid flex-col ${
             itemDataObj?.rarity === 0
               ? "border-gray-400"
               : itemDataObj?.rarity === 1

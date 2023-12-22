@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  actionPointsNaturalRegeneration,
+  LeaderBoardDataFetch,
   addMessageToInbox,
   adminAddNewBasisItem,
   adminRemoveBasisItem,
   generateItem,
-  healthPointsNaturalRegeneration,
   removeMessageFromInbox,
   triggerBattle,
   updateActionPoints,
@@ -24,6 +23,16 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
 
   return (
     <div className="flex flex-row gap-5">
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            await LeaderBoardDataFetch();
+            router.refresh();
+          }}
+        >
+          Fetch top 10
+        </button>
+      </div>
       <div className="flex flex-col">
         <button
           onClick={async () => {
