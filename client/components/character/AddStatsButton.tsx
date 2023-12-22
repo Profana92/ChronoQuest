@@ -33,7 +33,7 @@ const AddStatsButton = ({
         router.refresh();
       }}
     >
-      <span>+ {skillCost * playerData[statName].amount}</span>
+      <span>+ {skillCost * playerData[statName].basisValue}</span>
       <GiGoldBar className="inline text-amber-500 text-2xl" />
     </div>
   );

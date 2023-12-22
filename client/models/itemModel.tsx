@@ -15,7 +15,7 @@ export const itemsSchema = new Schema({
     spd: Number,
     acc: Number,
     armor: Number,
-    attack: { from: Number, to: Number },
+    attack: Number,
   },
   basisValue: Number,
   image: String,

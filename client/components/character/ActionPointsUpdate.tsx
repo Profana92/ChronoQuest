@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  actionPointsNaturalRegeneration,
+  LeaderBoardDataFetch,
   addMessageToInbox,
   adminAddNewBasisItem,
   adminRemoveBasisItem,
   generateItem,
-  healthPointsNaturalRegeneration,
   removeMessageFromInbox,
   triggerBattle,
   updateActionPoints,
@@ -24,6 +23,16 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
 
   return (
     <div className="flex flex-row gap-5">
+      <div className="flex flex-col">
+        <button
+          onClick={async () => {
+            await LeaderBoardDataFetch();
+            router.refresh();
+          }}
+        >
+          Fetch top 10
+        </button>
+      </div>
       <div className="flex flex-col">
         <button
           onClick={async () => {
@@ -123,9 +132,10 @@ const ActionPointsUpdate = ({ playerData }: { playerData: string }) => {
               rarity: 0,
               origin: "Shop",
               itemLevel: 5,
-              stats: { str: 1, dex: 4, int: 5, cha: 6, spd: 1, acc: 2, armor: 55, attack: { from: 7, to: 9 } },
+              stats: { str: 1, dex: 4, int: 5, cha: 6, spd: 1, acc: 2, armor: 5, attack: 4 },
               basisValue: 5,
               image: "https://opengameart.org/sites/default/files/axe2.png",
+              slot: "Right Hand",
             });
             if (createdItem?.msg) alert(createdItem?.msg);
             router.refresh();
