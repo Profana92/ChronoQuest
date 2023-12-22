@@ -1149,8 +1149,13 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       itemBasis: item,
       sender: enemyData.title,
     });
+<<<<<<< HEAD
+  console.log(fightResult);
+  //IN THIS GAME //
+=======
   }
 
+>>>>>>> 251f2ad702175f047894bb43b7c6b96e6c65b355
   // SPD -> Evade chande
   // ACC -> Double Dmg Chance
   // STR -> Block chance
