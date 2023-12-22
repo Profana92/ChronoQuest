@@ -102,7 +102,6 @@ const page = async () => {
               )}
             </div>
             <div className="col-start-3 col-end-4 row-start-4 row-end-5">
-              {" "}
               {characterData?.equipedItems?.ring ? (
                 <EquippedItemClient
                   itemData={JSON.stringify(characterData?.equipedItems.ring)}

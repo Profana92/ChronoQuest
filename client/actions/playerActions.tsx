@@ -1026,8 +1026,6 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       fightResult.playerWon = true;
       break;
     }
-    //  if(i===9)
-    //calc evade changes for player and enemy
   }
 
   const numberOfPlayerWonRounds = fightResult.rounds.reduce((acc, cur) => {
@@ -1068,7 +1066,7 @@ export async function triggerBattle({ player, enemy }: { player: string; enemy: 
       itemBasis: item,
       sender: enemyData.title,
     });
-
+  console.log(fightResult);
   //IN THIS GAME //
   // SPD -> Evade chande
   // ACC -> Double Dmg Chance
